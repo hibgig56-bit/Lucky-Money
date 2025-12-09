@@ -886,9 +886,9 @@
         const database = firebase.database();
         const auth = firebase.auth();
 
-        // Admin credentials (In production, use Firebase Auth with custom claims)
+        // Admin credentials
         const ADMIN_EMAIL = "admin@beetoken.com";
-        const ADMIN_PASSWORD = "Admin@123"; // Change this in production!
+        const ADMIN_PASSWORD = "Admin@123";
 
         // Global Variables
         let currentUser = null;
@@ -900,21 +900,14 @@
 
         // Initialize Admin Panel
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if admin is already logged in
             const savedAdmin = localStorage.getItem('bee_admin_logged_in');
             if (savedAdmin === 'true') {
-                // Auto-login (for development only - in production use proper auth)
                 showAdminDashboard();
                 loadDashboardData();
             }
             
-            // Update current date
             updateCurrentDate();
-            
-            // Setup menu click handlers
             setupMenuHandlers();
-            
-            // Setup login form
             setupLoginForm();
         });
 
@@ -936,11 +929,9 @@
                 item.addEventListener('click', function() {
                     const section = this.getAttribute('data-section');
                     
-                    // Update active menu item
                     document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Show selected section
                     showSection(section);
                 });
             });
@@ -948,15 +939,12 @@
 
         // Show section
         function showSection(section) {
-            // Hide all sections
             document.querySelectorAll('.content-section').forEach(sec => {
                 sec.classList.remove('active');
             });
             
-            // Show selected section
             document.getElementById(section + '-section').classList.add('active');
             
-            // Load section data if needed
             switch(section) {
                 case 'users':
                     loadUsers();
@@ -991,23 +979,16 @@
             const loginBtn = document.getElementById('login-btn');
             const errorDiv = document.getElementById('login-error');
             
-            // Simple validation (in production, use Firebase Auth)
             if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
                 loginBtn.disabled = true;
                 loginBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
                 
-                // Simulate API call
                 setTimeout(() => {
-                    // Store login state
                     localStorage.setItem('bee_admin_logged_in', 'true');
                     
-                    // Show admin dashboard
                     showAdminDashboard();
-                    
-                    // Load dashboard data
                     loadDashboardData();
                     
-                    // Reset login form
                     loginBtn.disabled = false;
                     loginBtn.textContent = 'Login to Dashboard';
                     errorDiv.style.display = 'none';
@@ -1032,7 +1013,6 @@
                 document.getElementById('admin-dashboard').style.display = 'none';
                 document.getElementById('login-page').style.display = 'flex';
                 
-                // Clear form
                 document.getElementById('admin-email').value = '';
                 document.getElementById('admin-password').value = '';
             }
@@ -1041,7 +1021,7 @@
         // Load dashboard data
         async function loadDashboardData() {
             try {
-                // Load users data
+                // Load users data - FIXED PATH
                 const usersRef = database.ref('users');
                 usersRef.on('value', (snapshot) => {
                     if (snapshot.exists()) {
@@ -1056,13 +1036,16 @@
                             user.id = childSnapshot.key;
                             usersData.push(user);
                             
-                            // Calculate totals
+                            // Calculate totals - FIXED DATA STRUCTURE
                             if (user.appState) {
                                 totalTokens += user.appState.tokens || 0;
+                            } else {
+                                // Check alternative paths
+                                if (user.tokens) totalTokens += user.tokens;
                             }
+                            
                             totalReferrals += user.referrals || 0;
                             
-                            // Check if active today
                             if (user.lastActive && user.lastActive.includes(today)) {
                                 activeToday++;
                             }
@@ -1074,7 +1057,7 @@
                         document.getElementById('stat-total-referrals').textContent = totalReferrals;
                         document.getElementById('stat-active-today').textContent = activeToday;
                         
-                        // Calculate USDT value (using current rate)
+                        // Calculate USDT value
                         const rate = systemSettings.tokenRate || 0.001;
                         const totalUSDT = totalTokens * rate;
                         document.getElementById('stat-total-usdt').textContent = `$${totalUSDT.toFixed(2)}`;
@@ -1086,7 +1069,7 @@
                     }
                 });
                 
-                // Load withdrawal requests
+                // Load withdrawal requests - FIXED PATH
                 const withdrawalsRef = database.ref('withdrawals');
                 withdrawalsRef.on('value', (snapshot) => {
                     let pendingCount = 0;
@@ -1119,7 +1102,7 @@
             renderUsersTable();
         }
 
-        // Render users table
+        // Render users table - FIXED DATA STRUCTURE
         function renderUsersTable() {
             const tbody = document.getElementById('users-table-body');
             
@@ -1134,30 +1117,38 @@
                 return;
             }
             
-            // Calculate pagination
             const startIndex = (currentPage - 1) * usersPerPage;
             const endIndex = startIndex + usersPerPage;
             const pageUsers = filteredUsers.slice(startIndex, endIndex);
             
-            // Clear table
             tbody.innerHTML = '';
             
-            // Add rows
             pageUsers.forEach(user => {
-                const appState = user.appState || {};
+                // FIXED: Handle both data structures
+                let tokens = 0;
+                let usdt = 0;
+                
+                if (user.appState) {
+                    tokens = user.appState.tokens || 0;
+                    usdt = user.appState.usdt || 0;
+                } else if (user.tokens !== undefined) {
+                    tokens = user.tokens || 0;
+                    usdt = user.usdt || 0;
+                }
+                
                 const row = document.createElement('tr');
                 
                 row.innerHTML = `
                     <td>${user.userId || user.id}</td>
                     <td>${user.name || 'Guest Bee'}</td>
-                    <td>${(appState.tokens || 0).toLocaleString()}</td>
-                    <td>$${(appState.usdt || 0).toFixed(4)}</td>
+                    <td>${tokens.toLocaleString()}</td>
+                    <td>$${usdt.toFixed(4)}</td>
                     <td>${user.referrals || 0}</td>
                     <td>
                         <span style="
                             padding: 4px 8px;
                             border-radius: 4px;
-                            background-color: ${user.status === 'active' ? 'var(--green)' : 'var(--red)'};
+                            background-color: ${(user.status === 'active' || !user.status) ? 'var(--green)' : 'var(--red)'};
                             color: white;
                             font-size: 12px;
                         ">
@@ -1181,7 +1172,6 @@
                 tbody.appendChild(row);
             });
             
-            // Update pagination info
             updatePaginationInfo();
         }
 
@@ -1240,13 +1230,26 @@
             
             if (snapshot.exists()) {
                 const user = snapshot.val();
+                
+                // Get correct data structure
+                let tokens = 0;
+                let usdt = 0;
+                
+                if (user.appState) {
+                    tokens = user.appState.tokens || 0;
+                    usdt = user.appState.usdt || 0;
+                } else if (user.tokens !== undefined) {
+                    tokens = user.tokens || 0;
+                    usdt = user.usdt || 0;
+                }
+                
                 alert(`
                     User Details:
                     ID: ${user.userId || userId}
                     Name: ${user.name || 'N/A'}
                     Telegram ID: ${user.telegramId || 'N/A'}
-                    Tokens: ${(user.appState?.tokens || 0).toLocaleString()}
-                    USDT: $${(user.appState?.usdt || 0).toFixed(4)}
+                    Tokens: ${tokens.toLocaleString()}
+                    USDT: $${usdt.toFixed(4)}
                     Referrals: ${user.referrals || 0}
                     Ads Watched: ${user.totalAdsWatched || 0}
                     Tasks Completed: ${user.tasksCompleted || 0}
@@ -1256,34 +1259,48 @@
             }
         }
 
-        // Edit user
+        // Edit user - FIXED DATA STRUCTURE
         async function editUser(userId) {
             const userRef = database.ref('users/' + userId);
             const snapshot = await userRef.once('value');
             
             if (snapshot.exists()) {
                 const user = snapshot.val();
-                const appState = user.appState || {};
+                
+                // Get correct data structure
+                let tokens = 0;
+                let usdt = 0;
+                
+                if (user.appState) {
+                    tokens = user.appState.tokens || 0;
+                    usdt = user.appState.usdt || 0;
+                } else if (user.tokens !== undefined) {
+                    tokens = user.tokens || 0;
+                    usdt = user.usdt || 0;
+                }
                 
                 // Fill modal form
                 document.getElementById('edit-user-id').value = user.userId || userId;
                 document.getElementById('edit-user-name').value = user.name || '';
-                document.getElementById('edit-user-tokens').value = appState.tokens || 0;
-                document.getElementById('edit-user-usdt').value = appState.usdt || 0;
+                document.getElementById('edit-user-tokens').value = tokens;
+                document.getElementById('edit-user-usdt').value = usdt;
                 document.getElementById('edit-user-referrals').value = user.referrals || 0;
                 document.getElementById('edit-user-status').value = user.status || 'active';
                 
-                // Store user ID for saving
+                // Store user ID and data structure for saving
                 document.getElementById('edit-user-form').dataset.userId = userId;
+                document.getElementById('edit-user-form').dataset.hasAppState = !!user.appState;
                 
                 // Show modal
                 openModal('user-edit-modal');
             }
         }
 
-        // Save user edits
+        // Save user edits - FIXED DATA STRUCTURE
         async function saveUserEdits() {
             const userId = document.getElementById('edit-user-form').dataset.userId;
+            const hasAppState = document.getElementById('edit-user-form').dataset.hasAppState === 'true';
+            
             if (!userId) return;
             
             const userRef = database.ref('users/' + userId);
@@ -1292,25 +1309,34 @@
                 // Get current user data
                 const snapshot = await userRef.once('value');
                 const currentData = snapshot.exists() ? snapshot.val() : {};
-                const currentAppState = currentData.appState || {};
                 
-                // Prepare updates
-                const updates = {
+                // Prepare updates based on data structure
+                let updates = {
                     name: document.getElementById('edit-user-name').value,
                     referrals: parseInt(document.getElementById('edit-user-referrals').value) || 0,
-                    status: document.getElementById('edit-user-status').value,
-                    appState: {
-                        ...currentAppState,
-                        tokens: parseInt(document.getElementById('edit-user-tokens').value) || 0,
-                        usdt: parseFloat(document.getElementById('edit-user-usdt').value) || 0
-                    }
+                    status: document.getElementById('edit-user-status').value
                 };
+                
+                // Handle tokens and USDT based on data structure
+                const newTokens = parseInt(document.getElementById('edit-user-tokens').value) || 0;
+                const newUSDT = parseFloat(document.getElementById('edit-user-usdt').value) || 0;
+                
+                if (hasAppState) {
+                    updates.appState = {
+                        ...(currentData.appState || {}),
+                        tokens: newTokens,
+                        usdt: newUSDT
+                    };
+                } else {
+                    updates.tokens = newTokens;
+                    updates.usdt = newUSDT;
+                }
                 
                 // Update user
                 await userRef.update(updates);
                 
                 // Log the action
-                await logAdminAction(`Edited user ${userId}`);
+                await logAdminAction(`Edited user ${userId} - Tokens: ${newTokens}, USDT: ${newUSDT}`);
                 
                 alert('User updated successfully!');
                 closeModal('user-edit-modal');
@@ -1338,7 +1364,7 @@
                 // Delete user
                 await userRef.remove();
                 
-                // Also delete user's appState
+                // Also delete user's appState if exists
                 const appStateRef = database.ref('appState/' + userId);
                 await appStateRef.remove();
                 
@@ -1378,7 +1404,6 @@
                     const withdrawal = childSnapshot.val();
                     const row = document.createElement('tr');
                     
-                    // Determine status color
                     let statusColor = 'var(--blue)';
                     if (withdrawal.status === 'completed') statusColor = 'var(--green)';
                     if (withdrawal.status === 'rejected') statusColor = 'var(--red)';
@@ -1446,16 +1471,26 @@
                     const userSnapshot = await userRef.once('value');
                     const userData = userSnapshot.val();
                     
-                    if (userData && userData.appState) {
-                        const currentUSDT = userData.appState.usdt || 0;
+                    if (userData) {
                         const withdrawalAmount = withdrawal.amount || 0;
+                        let currentUSDT = 0;
                         
-                        // Deduct withdrawal amount
-                        const newUSDT = Math.max(0, currentUSDT - withdrawalAmount);
-                        
-                        await userRef.update({
-                            'appState.usdt': newUSDT
-                        });
+                        // Handle different data structures
+                        if (userData.appState) {
+                            currentUSDT = userData.appState.usdt || 0;
+                            const newUSDT = Math.max(0, currentUSDT - withdrawalAmount);
+                            
+                            await userRef.update({
+                                'appState.usdt': newUSDT
+                            });
+                        } else if (userData.usdt !== undefined) {
+                            currentUSDT = userData.usdt || 0;
+                            const newUSDT = Math.max(0, currentUSDT - withdrawalAmount);
+                            
+                            await userRef.update({
+                                usdt: newUSDT
+                            });
+                        }
                     }
                 }
                 
@@ -1475,7 +1510,6 @@
         // Load referrals
         async function loadReferrals() {
             try {
-                // Load top referrers
                 const usersRef = database.ref('users');
                 const snapshot = await usersRef.once('value');
                 
@@ -1574,7 +1608,8 @@
                         minReferrals: 20,
                         minWithdrawal: 1.0,
                         referralLinkBase: 'https://t.me/your_bot_or_app?start=',
-                        maintenanceMessage: 'System is running normally...'
+                        maintenanceMessage: 'System is running normally...',
+                        lastUpdated: new Date().toISOString()
                     };
                     
                     // Save default settings
@@ -1584,7 +1619,9 @@
                     loadSystemSettings(); // Reload
                 }
                 
-                // Update USDT value with current rate
+                // Also load these settings to a more accessible location for main app
+                await updateGlobalSettingsForUsers();
+                
                 updateAllUserStats();
                 
             } catch (error) {
@@ -1615,11 +1652,14 @@
                 await settingsRef.set(updatedSettings);
                 systemSettings = updatedSettings;
                 
+                // Also update in a location accessible to main app
+                await updateGlobalSettingsForUsers();
+                
                 // Log the action
                 await logAdminAction('Updated system settings');
                 
                 alert('System settings saved successfully!');
-                updateAllUserStats(); // Update stats with new rate
+                updateAllUserStats();
                 
             } catch (error) {
                 console.error('Error saving system settings:', error);
@@ -1627,10 +1667,21 @@
             }
         }
 
-        // Update all user statistics (e.g., after rate change)
+        // Update global settings for user app
+        async function updateGlobalSettingsForUsers() {
+            try {
+                // Save settings to a more accessible location for main app
+                const globalSettingsRef = database.ref('globalSettings');
+                await globalSettingsRef.set(systemSettings);
+                
+                console.log('Global settings updated for user app');
+            } catch (error) {
+                console.error('Error updating global settings:', error);
+            }
+        }
+
+        // Update all user statistics
         async function updateAllUserStats() {
-            // This would update all user stats based on new settings
-            // For now, just refresh the dashboard
             loadDashboardData();
         }
 
@@ -1732,14 +1783,12 @@
 
         // Filter logs
         function filterLogs(type) {
-            // Implementation would filter logs by type
             alert(`Filtering by ${type} - This would filter the logs in a real implementation`);
         }
 
         // Search logs
         function searchLogs() {
             const term = document.getElementById('log-search').value;
-            // Implementation would search through logs
             alert(`Searching for: ${term}`);
         }
 
@@ -1751,7 +1800,7 @@
                     action: action,
                     admin: ADMIN_EMAIL,
                     timestamp: new Date().toISOString(),
-                    ip: 'N/A' // In production, get actual IP
+                    ip: 'N/A'
                 });
             } catch (error) {
                 console.error('Error logging action:', error);
