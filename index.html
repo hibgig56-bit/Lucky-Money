@@ -1078,7 +1078,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs - Realtime Database Version -->
+    <!-- Firebase SDKs -->
     <script type="module">
         // Firebase Configuration
         const firebaseConfig = {
@@ -1091,7 +1091,7 @@
             appId: "1:701262930342:web:a8c49ea25b730332ff2f67"
         };
 
-        // Firebase SDK Imports for Realtime Database
+        // Firebase SDK Imports - ALL required functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { 
             getAuth, 
@@ -1100,23 +1100,24 @@
             signOut 
         } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
         import { 
-            getDatabase,
-            ref,
-            set,
-            get,
-            update,
-            push,
-            child,
-            onValue,
-            query,
-            orderByChild,
-            equalTo
-        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+            getFirestore, 
+            collection, 
+            doc, 
+            getDoc, 
+            getDocs,
+            setDoc, 
+            updateDoc, 
+            query, 
+            where, 
+            onSnapshot, 
+            addDoc, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const database = getDatabase(app);
+        const db = getFirestore(app);
 
         // Admin UID
         const ADMIN_UIDS = ["3jTr4Bc6bAbfBaMgJvBzniJPMWq1"];
@@ -1292,44 +1293,55 @@
         async function loadDashboardData() {
             try {
                 // Load users data
-                const usersRef = ref(database, 'users');
-                onValue(usersRef, (snapshot) => {
+                const usersRef = collection(db, "users");
+                onSnapshot(usersRef, (snapshot) => {
                     usersData = [];
                     let totalTokens = 0;
                     let totalReferrals = 0;
                     let activeToday = 0;
                     const today = new Date().toISOString().split('T')[0];
                     
-                    const users = snapshot.val();
-                    if (users) {
-                        Object.keys(users).forEach((userId) => {
-                            const user = users[userId];
-                            user.id = userId;
-                            usersData.push(user);
-                            
-                            // Calculate totals
-                            totalTokens += user.balance || 0;
-                            totalReferrals += user.referrals || 0;
-                            
-                            if (user.lastActive && user.lastActive.includes(today)) {
-                                activeToday++;
-                            }
-                        });
-                    }
+                    snapshot.forEach((doc) => {
+                        const user = doc.data();
+                        user.id = doc.id;
+                        usersData.push(user);
+                        
+                        // Calculate totals
+                        totalTokens += user.balance || 0;
+                        totalReferrals += user.referrals || 0;
+                        
+                        if (user.lastActive && user.lastActive.includes(today)) {
+                            activeToday++;
+                        }
+                    });
                     
                     // Update dashboard stats
-                    document.getElementById('stat-total-users').textContent = usersData.length;
+                    document.getElementById('stat-total-users').textContent = snapshot.size;
                     document.getElementById('stat-total-tokens').textContent = totalTokens.toLocaleString();
                     document.getElementById('stat-total-referrals').textContent = totalReferrals;
                     document.getElementById('stat-active-today').textContent = activeToday;
                     
                     // Load system settings to calculate USDT value
-                    loadSystemSettingsForStats(totalTokens);
+                    const configRef = doc(db, "config", "main");
+                    getDoc(configRef).then(configSnap => {
+                        if (configSnap.exists()) {
+                            const config = configSnap.data();
+                            const rate = config.tokenRate || 0.001;
+                            const totalUSDT = totalTokens * rate;
+                            document.getElementById('stat-total-usdt').textContent = `$${totalUSDT.toFixed(2)}`;
+                        }
+                    });
                     
                     // Load users table if on users page
                     if (document.getElementById('users-section').classList.contains('active')) {
                         loadUsers();
                     }
+                });
+                
+                // Load pending withdrawals
+                const withdrawalsQuery = query(collection(db, "withdrawals"), where("status", "==", "pending"));
+                onSnapshot(withdrawalsQuery, (snapshot) => {
+                    document.getElementById('stat-pending-withdrawals').textContent = snapshot.size;
                 });
                 
                 // Load recent activity
@@ -1341,23 +1353,6 @@
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
                 showAlert('Error loading dashboard data. Please refresh.', 'error');
-            }
-        }
-
-        // Load system settings for stats calculation
-        async function loadSystemSettingsForStats(totalTokens) {
-            try {
-                const configRef = ref(database, 'config/main');
-                const snapshot = await get(configRef);
-                
-                if (snapshot.exists()) {
-                    const config = snapshot.val();
-                    const rate = config.tokenRate || 0.001;
-                    const totalUSDT = totalTokens * rate;
-                    document.getElementById('stat-total-usdt').textContent = `$${totalUSDT.toFixed(2)}`;
-                }
-            } catch (error) {
-                console.error('Error loading settings for stats:', error);
             }
         }
 
@@ -1415,7 +1410,7 @@
                             ${user.isBlocked ? 'Blocked' : 'Active'}
                         </span>
                     </td>
-                    <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
+                    <td>${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
                     <td>
                         <button class="action-btn view-btn" onclick="viewUserDetails('${user.id}')">
                             <i class="fas fa-eye"></i>
@@ -1494,11 +1489,11 @@
         // View user details
         async function viewUserDetails(userId) {
             try {
-                const userRef = ref(database, `users/${userId}`);
-                const snapshot = await get(userRef);
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
                 
-                if (snapshot.exists()) {
-                    const user = snapshot.val();
+                if (userSnap.exists()) {
+                    const user = userSnap.data();
                     
                     alert(`
                         User Details:
@@ -1510,7 +1505,7 @@
                         Referrals: ${user.referrals || 0}
                         Referral Code: ${user.referralCode || 'N/A'}
                         Status: ${user.isBlocked ? 'Blocked' : 'Active'}
-                        Joined: ${user.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}
+                        Joined: ${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleString() : 'N/A'}
                         Last Active: ${user.lastActive || 'N/A'}
                     `);
                 } else {
@@ -1525,11 +1520,11 @@
         // Edit user
         async function editUser(userId) {
             try {
-                const userRef = ref(database, `users/${userId}`);
-                const snapshot = await get(userRef);
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
                 
-                if (snapshot.exists()) {
-                    const user = snapshot.val();
+                if (userSnap.exists()) {
+                    const user = userSnap.data();
                     
                     // Fill modal form
                     document.getElementById('edit-user-id').value = userId;
@@ -1564,7 +1559,7 @@
                 return;
             }
             
-            const userRef = ref(database, `users/${userId}`);
+            const userRef = doc(db, "users", userId);
             
             try {
                 const tokens = parseInt(document.getElementById('edit-user-tokens').value) || 0;
@@ -1577,10 +1572,10 @@
                     referrals: parseInt(document.getElementById('edit-user-referrals').value) || 0,
                     isBlocked: status === 'banned' || status === 'suspended',
                     referralCode: document.getElementById('edit-user-referral-code').value,
-                    updatedAt: Date.now()
+                    updatedAt: serverTimestamp()
                 };
                 
-                await update(userRef, updates);
+                await updateDoc(userRef, updates);
                 
                 // Log the action
                 await logAdminAction(`Edited user ${userId} - Tokens: ${tokens}, Status: ${status}`);
@@ -1603,10 +1598,10 @@
             if (!confirmed) return;
             
             try {
-                const userRef = ref(database, `users/${userId}`);
-                await update(userRef, {
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, {
                     isBlocked: !isCurrentlyBlocked,
-                    updatedAt: Date.now()
+                    updatedAt: serverTimestamp()
                 });
                 
                 // Log the action
@@ -1621,16 +1616,212 @@
             }
         }
 
-        // Load system settings - Realtime Database Version
+        // Load withdrawals
+        async function loadWithdrawals() {
+            try {
+                const withdrawalsQuery = query(collection(db, "withdrawals"));
+                const unsubscribe = onSnapshot(withdrawalsQuery, (snapshot) => {
+                    const tbody = document.getElementById('withdrawals-table-body');
+                    tbody.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 30px;">
+                                    No withdrawal requests found
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    snapshot.forEach((docSnap) => {
+                        const request = docSnap.data();
+                        const row = document.createElement('tr');
+                        
+                        let statusColor = 'var(--blue)';
+                        if (request.status === 'approved') statusColor = 'var(--green)';
+                        if (request.status === 'rejected') statusColor = 'var(--red)';
+                        
+                        row.innerHTML = `
+                            <td>${docSnap.id.substring(0, 8)}</td>
+                            <td>${request.userId || 'N/A'}</td>
+                            <td>$${request.amount?.toFixed(4) || '0.0000'}</td>
+                            <td style="font-family: monospace;">${request.paymentDetail || 'Not provided'}</td>
+                            <td>
+                                <span style="
+                                    padding: 4px 8px;
+                                    border-radius: 4px;
+                                    background-color: ${statusColor};
+                                    color: white;
+                                    font-size: 12px;
+                                ">
+                                    ${request.status || 'pending'}
+                                </span>
+                            </td>
+                            <td>${request.requestedAt ? new Date(request.requestedAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
+                            <td>
+                                ${request.status === 'pending' ? `
+                                    <button class="action-btn edit-btn" onclick="handleWithdrawal('${docSnap.id}', 'approved')">
+                                        Approve
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="handleWithdrawal('${docSnap.id}', 'rejected')">
+                                        Reject
+                                    </button>
+                                ` : 'Processed'}
+                            </td>
+                        `;
+                        
+                        tbody.appendChild(row);
+                    });
+                });
+                
+                // Store unsubscribe function
+                window.withdrawalsUnsubscribe = unsubscribe;
+                
+            } catch (error) {
+                console.error('Error loading withdrawals:', error);
+                showAlert('Error loading withdrawals', 'error');
+            }
+        }
+
+        // Handle withdrawal
+        async function handleWithdrawal(requestId, newStatus) {
+            const statusText = newStatus === 'approved' ? 'approve' : 'reject';
+            const confirmed = await showConfirm(`Are you sure you want to ${statusText} this withdrawal?`);
+            
+            if (!confirmed) return;
+            
+            try {
+                const requestRef = doc(db, "withdrawals", requestId);
+                
+                // First get the current request data
+                const requestSnap = await getDoc(requestRef);
+                if (!requestSnap.exists()) {
+                    showAlert('Withdrawal request not found', 'error');
+                    return;
+                }
+                
+                const requestData = requestSnap.data();
+                
+                if (newStatus === 'rejected') {
+                    // Refund balance to user
+                    const userRef = doc(db, "users", requestData.userId);
+                    const userSnap = await getDoc(userRef);
+                    
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        const currentBalance = userData.balance || 0;
+                        const withdrawalAmountInTokens = (requestData.amount || 0) * 1000; // Assuming 0.001 rate
+                        
+                        await updateDoc(userRef, {
+                            balance: currentBalance + withdrawalAmountInTokens,
+                            updatedAt: serverTimestamp()
+                        });
+                    }
+                }
+                
+                // Update withdrawal status
+                await updateDoc(requestRef, {
+                    status: newStatus,
+                    processedAt: serverTimestamp(),
+                    processedBy: currentAdmin.uid
+                });
+                
+                // Log the action
+                await logAdminAction(`${statusText}ed withdrawal ${requestId.substring(0, 8)}`);
+                
+                showAlert(`Withdrawal ${statusText}d successfully!`, 'success');
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error processing withdrawal:', error);
+                showAlert('Error processing withdrawal. Please try again.', 'error');
+            }
+        }
+
+        // Load referrals
+        async function loadReferrals() {
+            try {
+                const usersQuery = query(collection(db, "users"), where("referrals", ">", 0));
+                const usersSnap = await getDocs(usersQuery);
+                
+                let topReferrers = [];
+                let totalReferrals = 0;
+                
+                if (!usersSnap.empty) {
+                    usersSnap.forEach((doc) => {
+                        const user = doc.data();
+                        const referrals = user.referrals || 0;
+                        totalReferrals += referrals;
+                        
+                        if (referrals > 0) {
+                            topReferrers.push({
+                                name: user.name || 'Anonymous',
+                                userId: doc.id,
+                                referrals: referrals,
+                                earnings: (referrals * 10)
+                            });
+                        }
+                    });
+                }
+                
+                // Sort by referrals
+                topReferrers.sort((a, b) => b.referrals - a.referrals);
+                
+                // Display top referrers
+                const topReferrersDiv = document.getElementById('top-referrers');
+                if (topReferrers.length > 0) {
+                    let html = '';
+                    topReferrers.slice(0, 5).forEach((referrer, index) => {
+                        html += `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
+                                <div>
+                                    <strong>${index + 1}. ${referrer.name}</strong><br>
+                                    <small>${referrer.userId.substring(0, 8)}...</small>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div>${referrer.referrals} referrals</div>
+                                    <small>${referrer.earnings} tokens earned</small>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    topReferrersDiv.innerHTML = html;
+                } else {
+                    topReferrersDiv.innerHTML = 'No referral data available';
+                }
+                
+                // Display referral stats
+                const referralStatsDiv = document.getElementById('referral-stats');
+                referralStatsDiv.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>Total Referrals:</strong> ${totalReferrals}
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Reward per Referral:</strong> 10 tokens
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Total Tokens Distributed:</strong> ${totalReferrals * 10} tokens
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading referrals:', error);
+                showAlert('Error loading referral data', 'error');
+            }
+        }
+
+        // Load system settings - FIXED VERSION
         async function loadSystemSettings() {
             try {
-                const configRef = ref(database, 'config/main');
-                const snapshot = await get(configRef);
+                const configRef = doc(db, "config", "main");
+                const configSnap = await getDoc(configRef);
                 
-                if (snapshot.exists()) {
-                    const config = snapshot.val();
+                if (configSnap.exists()) {
+                    const config = configSnap.data();
                     
-                    console.log("Loaded config from Realtime DB:", config);
+                    console.log("Loaded config:", config); // Debug log
                     
                     // Update form fields
                     document.getElementById('token-rate').value = config.tokenRate || 0.001;
@@ -1642,7 +1833,7 @@
                     document.getElementById('min-withdrawal').value = config.minWithdrawal || 1.0;
                     document.getElementById('daily-ad-limit').value = config.dailyAdLimit || 100;
                     
-                    // Handle payment methods
+                    // Handle payment methods - can be array or string
                     let paymentMethods = config.paymentMethods;
                     if (Array.isArray(paymentMethods)) {
                         document.getElementById('payment-methods').value = paymentMethods.join(', ');
@@ -1654,8 +1845,9 @@
                     
                     document.getElementById('maintenance-message').value = config.maintenanceMessage || 'System is running normally...';
                     
+                    showAlert('Settings loaded successfully!', 'success');
                 } else {
-                    console.log("Config doesn't exist in Realtime DB, creating default...");
+                    console.log("Config document doesn't exist, creating default...");
                     // Create default config
                     const defaultConfig = {
                         tokenRate: 0.001,
@@ -1668,29 +1860,29 @@
                         dailyAdLimit: 100,
                         paymentMethods: ["Binance", "PayPal", "Skrill", "Perfect Money"],
                         maintenanceMessage: "System is running normally...",
-                        lastUpdated: Date.now(),
+                        lastUpdated: serverTimestamp(),
                         updatedBy: currentAdmin ? currentAdmin.uid : "system"
                     };
                     
-                    await set(configRef, defaultConfig);
-                    console.log("Default config created in Realtime DB");
+                    await setDoc(configRef, defaultConfig);
+                    console.log("Default config created");
                     
                     // Reload settings
                     loadSystemSettings();
                 }
                 
             } catch (error) {
-                console.error('Error loading system settings from Realtime DB:', error);
+                console.error('Error loading system settings:', error);
                 showAlert('Error loading system settings: ' + error.message, 'error');
             }
         }
 
-        // Save system settings - Realtime Database Version (FIXED)
+        // Save system settings - COMPLETELY FIXED VERSION
         async function saveSystemSettings() {
-            console.log("Saving system settings to Realtime Database...");
+            console.log("Saving system settings...");
             
             try {
-                const configRef = ref(database, 'config/main');
+                const configRef = doc(db, "config", "main");
                 
                 // Get all values from the form
                 const tokenRate = parseFloat(document.getElementById('token-rate').value);
@@ -1704,7 +1896,7 @@
                 const paymentMethodsText = document.getElementById('payment-methods').value;
                 const maintenanceMessage = document.getElementById('maintenance-message').value;
                 
-                console.log("Form values to save:", {
+                console.log("Form values:", {
                     tokenRate,
                     dailyAirdrop,
                     adReward,
@@ -1745,16 +1937,16 @@
                     dailyAdLimit: dailyAdLimit,
                     paymentMethods: paymentMethods,
                     maintenanceMessage: maintenanceMessage,
-                    lastUpdated: Date.now(),
+                    lastUpdated: serverTimestamp(),
                     updatedBy: currentAdmin.uid
                 };
                 
-                console.log("Saving to Realtime Database:", updatedSettings);
+                console.log("Saving to Firebase:", updatedSettings);
                 
-                // Save settings using set
-                await set(configRef, updatedSettings);
+                // Save settings using setDoc with merge: true
+                await setDoc(configRef, updatedSettings, { merge: true });
                 
-                console.log("Settings saved successfully to Realtime DB!");
+                console.log("Settings saved successfully!");
                 
                 // Log the action
                 await logAdminAction('Updated system settings');
@@ -1767,7 +1959,7 @@
                 }, 1000);
                 
             } catch (error) {
-                console.error('Error saving system settings to Realtime DB:', error);
+                console.error('Error saving system settings:', error);
                 showAlert('Error saving settings: ' + error.message, 'error');
             }
         }
@@ -1775,11 +1967,11 @@
         // Load bot links
         async function loadBotLinks() {
             try {
-                const botLinksRef = ref(database, 'config/botLinks');
-                const snapshot = await get(botLinksRef);
+                const botLinksRef = doc(db, "config", "botLinks");
+                const botLinksSnap = await getDoc(botLinksRef);
                 
-                if (snapshot.exists()) {
-                    const botLinks = snapshot.val();
+                if (botLinksSnap.exists()) {
+                    const botLinks = botLinksSnap.data();
                     
                     // Update form fields
                     document.getElementById('telegram-bot-link').value = botLinks.telegram || '';
@@ -1796,19 +1988,19 @@
         // Save bot links
         async function saveBotLinks() {
             try {
-                const botLinksRef = ref(database, 'config/botLinks');
+                const botLinksRef = doc(db, "config", "botLinks");
                 
                 const botLinks = {
                     telegram: document.getElementById('telegram-bot-link').value,
                     youtube: document.getElementById('youtube-channel-link').value,
                     referralBase: document.getElementById('referral-link-base').value,
                     appDownload: document.getElementById('app-download-link').value,
-                    updatedAt: Date.now(),
+                    updatedAt: serverTimestamp(),
                     updatedBy: currentAdmin.uid
                 };
                 
                 // Save bot links
-                await set(botLinksRef, botLinks);
+                await setDoc(botLinksRef, botLinks, { merge: true });
                 
                 // Log the action
                 await logAdminAction('Updated bot links');
@@ -1833,14 +2025,13 @@
             }
             
             try {
-                const notificationsRef = ref(database, 'notifications');
-                const newNotificationRef = push(notificationsRef);
+                const notificationsRef = collection(db, "notifications");
                 
-                await set(newNotificationRef, {
+                await addDoc(notificationsRef, {
                     title: title,
                     message: message,
                     type: type,
-                    createdAt: Date.now(),
+                    createdAt: serverTimestamp(),
                     sentBy: currentAdmin.uid,
                     forAllUsers: true
                 });
@@ -1863,12 +2054,12 @@
         // Load recent activity
         async function loadRecentActivity() {
             try {
-                const logsRef = ref(database, 'adminLogs');
-                const snapshot = await get(logsRef);
+                const logsQuery = query(collection(db, "adminLogs"), where("adminId", "==", currentAdmin.uid));
+                const logsSnap = await getDocs(logsQuery);
                 
                 const activityDiv = document.getElementById('recent-activity');
                 
-                if (!snapshot.exists()) {
+                if (logsSnap.empty) {
                     activityDiv.innerHTML = '<p>No recent activity</p>';
                     return;
                 }
@@ -1876,17 +2067,16 @@
                 let html = '';
                 const logs = [];
                 
-                const logsData = snapshot.val();
-                Object.keys(logsData).forEach(key => {
-                    logs.push(logsData[key]);
+                logsSnap.forEach((doc) => {
+                    logs.push(doc.data());
                 });
                 
                 // Sort by timestamp (newest first)
-                logs.sort((a, b) => b.timestamp - a.timestamp);
+                logs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
                 
                 // Display logs
                 logs.slice(0, 5).forEach(log => {
-                    const time = log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A';
+                    const time = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'N/A';
                     html += `
                         <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--admin-border);">
                             <div style="font-weight: bold;">${log.action}</div>
@@ -1902,17 +2092,81 @@
             }
         }
 
+        // Load activity logs
+        async function loadActivityLogs() {
+            try {
+                const logsQuery = query(collection(db, "adminLogs"), where("adminId", "==", currentAdmin.uid));
+                const logsSnap = await getDocs(logsQuery);
+                
+                const logsDiv = document.getElementById('activity-logs');
+                
+                if (logsSnap.empty) {
+                    logsDiv.innerHTML = '<p>No activity logs found</p>';
+                    return;
+                }
+                
+                let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+                const logs = [];
+                
+                logsSnap.forEach((doc) => {
+                    logs.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Sort by timestamp (newest first)
+                logs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
+                
+                // Display logs
+                logs.forEach(log => {
+                    const time = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'N/A';
+                    html += `
+                        <div style="
+                            padding: 15px;
+                            background-color: rgba(255,255,255,0.05);
+                            border-radius: 8px;
+                            border-left: 4px solid var(--primary-yellow);
+                        ">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <strong>${log.action}</strong>
+                                <small style="color: #94A3B8;">${time}</small>
+                            </div>
+                            <div style="color: #94A3B8; font-size: 14px;">
+                                Admin: ${log.adminEmail || currentAdmin.email}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                logsDiv.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading activity logs:', error);
+            }
+        }
+
+        // Filter logs
+        function filterLogs(type) {
+            alert(`Filtering by ${type} - This would filter the logs in a real implementation`);
+        }
+
+        // Search logs
+        function searchLogs() {
+            const term = document.getElementById('log-search').value;
+            alert(`Searching for: ${term}`);
+        }
+
         // Log admin action
         async function logAdminAction(action) {
             try {
-                const logsRef = ref(database, 'adminLogs');
-                const newLogRef = push(logsRef);
-                
-                await set(newLogRef, {
+                const logsRef = collection(db, "adminLogs");
+                await addDoc(logsRef, {
                     action: action,
                     adminId: currentAdmin.uid,
                     adminEmail: currentAdmin.email,
-                    timestamp: Date.now(),
+                    timestamp: serverTimestamp(),
                     ip: 'N/A'
                 });
             } catch (error) {
@@ -2006,6 +2260,7 @@
         window.editUser = editUser;
         window.saveUserEdits = saveUserEdits;
         window.toggleBlockUser = toggleBlockUser;
+        window.handleWithdrawal = handleWithdrawal;
         window.filterLogs = filterLogs;
         window.searchLogs = searchLogs;
         window.sendNotificationToAllUsers = sendNotificationToAllUsers;
