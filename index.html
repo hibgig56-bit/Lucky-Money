@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bee Token Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -516,9 +512,143 @@
                 margin: 20px;
             }
         }
+
+        /* Alert & Confirm Styles */
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            max-width: 400px;
+        }
+        
+        .alert {
+            background-color: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            border-left: 4px solid var(--green);
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .alert.error {
+            border-left-color: var(--red);
+        }
+        
+        .alert.warning {
+            border-left-color: var(--primary-yellow);
+        }
+        
+        .alert.info {
+            border-left-color: var(--blue);
+        }
+        
+        .alert-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .alert-message {
+            flex: 1;
+            margin-right: 15px;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            color: var(--admin-text);
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.7;
+        }
+        
+        .alert-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .confirm-content {
+            background-color: var(--admin-card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--admin-border);
+            text-align: center;
+        }
+        
+        .confirm-message {
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+        
+        .confirm-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .confirm-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            min-width: 100px;
+        }
+        
+        .confirm-ok {
+            background-color: var(--red);
+            color: white;
+        }
+        
+        .confirm-cancel {
+            background-color: var(--blue);
+            color: white;
+        }
     </style>
 </head>
 <body>
+    <!-- Alert Container -->
+    <div class="alert-container" id="alert-container"></div>
+
+    <!-- Confirm Modal -->
+    <div class="confirm-modal" id="confirm-modal">
+        <div class="confirm-content">
+            <div class="confirm-message" id="confirm-message"></div>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-cancel" id="confirm-cancel">Cancel</button>
+                <button class="confirm-btn confirm-ok" id="confirm-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Login Page -->
     <div class="login-container" id="login-page">
         <div class="login-box">
@@ -563,6 +693,14 @@
                     <i class="fas fa-user-friends"></i>
                     <span>Referral System</span>
                 </div>
+                <div class="menu-item" data-section="notifications">
+                    <i class="fas fa-bell"></i>
+                    <span>Send Notification</span>
+                </div>
+                <div class="menu-item" data-section="bot-links">
+                    <i class="fas fa-robot"></i>
+                    <span>Bot Links</span>
+                </div>
                 <div class="menu-item" data-section="logs">
                     <i class="fas fa-history"></i>
                     <span>Activity Logs</span>
@@ -580,7 +718,7 @@
                 </div>
                 <div class="user-info">
                     <span id="admin-email-display">admin@bee.com</span>
-                    <button class="logout-btn" onclick="logoutAdmin()">
+                    <button class="logout-btn" id="admin-logout-btn">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
@@ -653,7 +791,7 @@
                             <button class="action-btn edit-btn" onclick="showSection('withdrawals')">
                                 <i class="fas fa-wallet"></i> Process Withdrawals
                             </button>
-                            <button class="action-btn edit-btn" onclick="updateAllUserStats()">
+                            <button class="action-btn edit-btn" onclick="refreshAllData()">
                                 <i class="fas fa-sync"></i> Refresh Statistics
                             </button>
                         </div>
@@ -668,6 +806,7 @@
                     <div class="search-box">
                         <input type="text" id="user-search" placeholder="Search by User ID, Email or Telegram ID...">
                         <button onclick="searchUsers()">Search</button>
+                        <button onclick="clearUserSearch()">Clear</button>
                     </div>
                 </div>
                 <div class="user-table-container">
@@ -694,8 +833,8 @@
                 <div style="display: flex; justify-content: space-between; margin-top: 20px;">
                     <div id="pagination-info">Showing 0 of 0 users</div>
                     <div>
-                        <button onclick="prevPage()" style="margin-right: 10px;">Previous</button>
-                        <button onclick="nextPage()">Next</button>
+                        <button onclick="prevPage()" class="action-btn" style="margin-right: 10px;">Previous</button>
+                        <button onclick="nextPage()" class="action-btn">Next</button>
                     </div>
                 </div>
             </div>
@@ -708,35 +847,39 @@
                 <form class="settings-form" id="system-settings">
                     <div class="form-group">
                         <label>Token Conversion Rate (1 BEE = ? USDT)</label>
-                        <input type="number" id="token-rate" step="0.00001" min="0">
+                        <input type="number" id="token-rate" step="0.00001" min="0" value="0.001">
                     </div>
                     <div class="form-group">
                         <label>Daily Airdrop Reward (Tokens)</label>
-                        <input type="number" id="daily-airdrop" min="0">
+                        <input type="number" id="daily-airdrop" min="0" value="50">
                     </div>
                     <div class="form-group">
                         <label>Ad Reward Amount (Tokens per ad)</label>
-                        <input type="number" id="ad-reward" min="0">
+                        <input type="number" id="ad-reward" min="0" value="10">
                     </div>
                     <div class="form-group">
                         <label>Task Reward Amount (Tokens per task)</label>
-                        <input type="number" id="task-reward" min="0">
+                        <input type="number" id="task-reward" min="0" value="50">
                     </div>
                     <div class="form-group">
                         <label>Referral Reward (Tokens per referral)</label>
-                        <input type="number" id="referral-reward" min="0">
+                        <input type="number" id="referral-reward" min="0" value="10">
                     </div>
                     <div class="form-group">
                         <label>Minimum Referrals for Withdrawal</label>
-                        <input type="number" id="min-referrals" min="0">
+                        <input type="number" id="min-referrals" min="0" value="20">
                     </div>
                     <div class="form-group">
                         <label>Minimum Withdrawal Amount (USDT)</label>
-                        <input type="number" id="min-withdrawal" step="0.01" min="0">
+                        <input type="number" id="min-withdrawal" step="0.01" min="0" value="1.0">
                     </div>
                     <div class="form-group">
-                        <label>Referral Link Base URL</label>
-                        <input type="text" id="referral-link-base" placeholder="https://t.me/your_bot_or_app?start=">
+                        <label>Daily Ad Limit</label>
+                        <input type="number" id="daily-ad-limit" min="1" value="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Methods (comma separated)</label>
+                        <input type="text" id="payment-methods" value="Binance, PayPal, Skrill, Perfect Money">
                     </div>
                     <div class="form-group">
                         <label>System Maintenance Message</label>
@@ -805,6 +948,63 @@
                 </table>
             </div>
 
+            <!-- Notifications Section -->
+            <div class="content-section" id="notifications-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-bell"></i> Send Notification</h3>
+                </div>
+                <form class="settings-form" style="grid-template-columns: 1fr;">
+                    <div class="form-group">
+                        <label>Notification Title</label>
+                        <input type="text" id="notification-title" placeholder="Enter notification title">
+                    </div>
+                    <div class="form-group">
+                        <label>Notification Message</label>
+                        <textarea id="notification-message" rows="6" placeholder="Enter notification message for all users"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Notification Type</label>
+                        <select id="notification-type">
+                            <option value="info">Information</option>
+                            <option value="success">Success</option>
+                            <option value="warning">Warning</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
+                    <button type="button" class="save-btn" onclick="sendNotificationToAllUsers()">
+                        <i class="fas fa-paper-plane"></i> Send to All Users
+                    </button>
+                </form>
+            </div>
+
+            <!-- Bot Links Section -->
+            <div class="content-section" id="bot-links-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-robot"></i> Bot Links Management</h3>
+                </div>
+                <form class="settings-form">
+                    <div class="form-group">
+                        <label>Telegram Bot Link</label>
+                        <input type="text" id="telegram-bot-link" placeholder="https://t.me/your_bot_or_app?start=">
+                    </div>
+                    <div class="form-group">
+                        <label>YouTube Channel Link</label>
+                        <input type="text" id="youtube-channel-link" placeholder="https://youtube.com/@channel">
+                    </div>
+                    <div class="form-group">
+                        <label>Referral Link Base URL</label>
+                        <input type="text" id="referral-link-base" placeholder="https://yourdomain.com?ref=">
+                    </div>
+                    <div class="form-group">
+                        <label>App Download Link</label>
+                        <input type="text" id="app-download-link" placeholder="https://play.google.com/store/apps/details?id=com.example">
+                    </div>
+                    <button type="button" class="save-btn" onclick="saveBotLinks()">
+                        <i class="fas fa-save"></i> Save Bot Links
+                    </button>
+                </form>
+            </div>
+
             <!-- Logs Section -->
             <div class="content-section" id="logs-section">
                 <div class="section-header">
@@ -815,11 +1015,11 @@
                     </div>
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <button onclick="filterLogs('all')" style="margin-right: 10px;">All</button>
-                    <button onclick="filterLogs('airdrop')" style="margin-right: 10px;">Airdrops</button>
-                    <button onclick="filterLogs('ad')" style="margin-right: 10px;">Ads</button>
-                    <button onclick="filterLogs('withdrawal')" style="margin-right: 10px;">Withdrawals</button>
-                    <button onclick="filterLogs('referral')">Referrals</button>
+                    <button onclick="filterLogs('all')" class="action-btn" style="margin-right: 10px;">All</button>
+                    <button onclick="filterLogs('airdrop')" class="action-btn" style="margin-right: 10px;">Airdrops</button>
+                    <button onclick="filterLogs('ad')" class="action-btn" style="margin-right: 10px;">Ads</button>
+                    <button onclick="filterLogs('withdrawal')" class="action-btn" style="margin-right: 10px;">Withdrawals</button>
+                    <button onclick="filterLogs('referral')" class="action-btn">Referrals</button>
                 </div>
                 <div id="activity-logs">
                     <p>Loading activity logs...</p>
@@ -845,6 +1045,10 @@
                     <input type="text" id="edit-user-name">
                 </div>
                 <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="edit-user-email">
+                </div>
+                <div class="form-group">
                     <label>Tokens Balance</label>
                     <input type="number" id="edit-user-tokens" min="0">
                 </div>
@@ -864,12 +1068,17 @@
                         <option value="banned">Banned</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Referral Code</label>
+                    <input type="text" id="edit-user-referral-code">
+                </div>
                 <button type="button" class="save-btn" onclick="saveUserEdits()">Save Changes</button>
             </form>
         </div>
     </div>
 
-    <script>
+    <!-- Firebase SDKs -->
+    <script type="module">
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyASMBf-fL9tJOj2sgKdpVK77TYRMga1bag",
@@ -881,35 +1090,47 @@
             appId: "1:701262930342:web:a8c49ea25b730332ff2f67"
         };
 
+        // Firebase SDK Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, query, where, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const auth = firebase.auth();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // Admin credentials
-        const ADMIN_EMAIL = "admin@beetoken.com";
-        const ADMIN_PASSWORD = "Admin@123";
+        // Admin UID - Firebase user ID
+        const ADMIN_UIDS = ["3jTr4Bc6bAbfBaMgJvBzniJPMWq1"];
 
-        // Global Variables
-        let currentUser = null;
+        // Global variables
+        let currentAdmin = null;
         let usersData = [];
         let filteredUsers = [];
         let currentPage = 1;
         const usersPerPage = 20;
-        let systemSettings = {};
 
         // Initialize Admin Panel
         document.addEventListener('DOMContentLoaded', function() {
-            const savedAdmin = localStorage.getItem('bee_admin_logged_in');
-            if (savedAdmin === 'true') {
-                showAdminDashboard();
-                loadDashboardData();
-            }
-            
             updateCurrentDate();
             setupMenuHandlers();
             setupLoginForm();
+            setupEventListeners();
+            
+            // Check if admin is already logged in
+            onAuthStateChanged(auth, handleAuthStateChange);
         });
+
+        // Handle authentication state change
+        async function handleAuthStateChange(user) {
+            if (user && ADMIN_UIDS.includes(user.uid)) {
+                currentAdmin = user;
+                showAdminDashboard();
+                loadDashboardData();
+            } else {
+                showLoginPage();
+            }
+        }
 
         // Update current date
         function updateCurrentDate() {
@@ -937,6 +1158,83 @@
             });
         }
 
+        // Setup event listeners
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleAdminLogin();
+            });
+            
+            // Logout button
+            document.getElementById('admin-logout-btn').addEventListener('click', async () => {
+                const confirmed = await showConfirm('Are you sure you want to logout?');
+                if (confirmed) {
+                    await signOut(auth);
+                    showLoginPage();
+                }
+            });
+        }
+
+        // Setup login form
+        function setupLoginForm() {
+            // Already handled in setupEventListeners
+        }
+
+        // Admin login function
+        async function handleAdminLogin() {
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            const loginBtn = document.getElementById('login-btn');
+            const errorDiv = document.getElementById('login-error');
+            
+            if (!email || !password) {
+                errorDiv.textContent = 'Please enter email and password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                if (!ADMIN_UIDS.includes(userCredential.user.uid)) {
+                    await signOut(auth);
+                    showAlert("You are not authorized to access this panel.", "error");
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Login to Dashboard';
+                    return;
+                }
+                
+                showAlert("Login successful!", "success");
+                
+            } catch (error) {
+                showAlert(error.message, "error");
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login to Dashboard';
+            }
+        }
+
+        // Show admin dashboard
+        function showAdminDashboard() {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'flex';
+            if (currentAdmin) {
+                document.getElementById('admin-email-display').textContent = currentAdmin.email;
+            }
+        }
+
+        // Show login page
+        function showLoginPage() {
+            document.getElementById('admin-dashboard').style.display = 'none';
+            document.getElementById('login-page').style.display = 'flex';
+            currentAdmin = null;
+        }
+
         // Show section
         function showSection(section) {
             document.querySelectorAll('.content-section').forEach(sec => {
@@ -961,127 +1259,70 @@
                 case 'settings':
                     loadSystemSettings();
                     break;
-            }
-        }
-
-        // Setup login form
-        function setupLoginForm() {
-            document.getElementById('login-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                loginAdmin();
-            });
-        }
-
-        // Admin login
-        function loginAdmin() {
-            const email = document.getElementById('admin-email').value;
-            const password = document.getElementById('admin-password').value;
-            const loginBtn = document.getElementById('login-btn');
-            const errorDiv = document.getElementById('login-error');
-            
-            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
-                
-                setTimeout(() => {
-                    localStorage.setItem('bee_admin_logged_in', 'true');
-                    
-                    showAdminDashboard();
-                    loadDashboardData();
-                    
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Login to Dashboard';
-                    errorDiv.style.display = 'none';
-                }, 1500);
-            } else {
-                errorDiv.textContent = 'Invalid email or password';
-                errorDiv.style.display = 'block';
-            }
-        }
-
-        // Show admin dashboard
-        function showAdminDashboard() {
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'flex';
-            document.getElementById('admin-email-display').textContent = ADMIN_EMAIL;
-        }
-
-        // Logout admin
-        function logoutAdmin() {
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('bee_admin_logged_in');
-                document.getElementById('admin-dashboard').style.display = 'none';
-                document.getElementById('login-page').style.display = 'flex';
-                
-                document.getElementById('admin-email').value = '';
-                document.getElementById('admin-password').value = '';
+                case 'notifications':
+                    // Clear notification form
+                    document.getElementById('notification-title').value = '';
+                    document.getElementById('notification-message').value = '';
+                    break;
+                case 'bot-links':
+                    loadBotLinks();
+                    break;
             }
         }
 
         // Load dashboard data
         async function loadDashboardData() {
             try {
-                // Load users data - FIXED PATH
-                const usersRef = database.ref('users');
-                usersRef.on('value', (snapshot) => {
-                    if (snapshot.exists()) {
-                        usersData = [];
-                        let totalTokens = 0;
-                        let totalReferrals = 0;
-                        let activeToday = 0;
-                        const today = new Date().toISOString().split('T')[0];
+                // Load users data
+                const usersRef = collection(db, "users");
+                onSnapshot(usersRef, (snapshot) => {
+                    usersData = [];
+                    let totalTokens = 0;
+                    let totalReferrals = 0;
+                    let activeToday = 0;
+                    const today = new Date().toISOString().split('T')[0];
+                    
+                    snapshot.forEach((doc) => {
+                        const user = doc.data();
+                        user.id = doc.id;
+                        usersData.push(user);
                         
-                        snapshot.forEach((childSnapshot) => {
-                            const user = childSnapshot.val();
-                            user.id = childSnapshot.key;
-                            usersData.push(user);
-                            
-                            // Calculate totals - FIXED DATA STRUCTURE
-                            if (user.appState) {
-                                totalTokens += user.appState.tokens || 0;
-                            } else {
-                                // Check alternative paths
-                                if (user.tokens) totalTokens += user.tokens;
-                            }
-                            
-                            totalReferrals += user.referrals || 0;
-                            
-                            if (user.lastActive && user.lastActive.includes(today)) {
-                                activeToday++;
-                            }
-                        });
+                        // Calculate totals
+                        totalTokens += user.balance || 0;
+                        totalReferrals += user.referrals || 0;
                         
-                        // Update dashboard stats
-                        document.getElementById('stat-total-users').textContent = usersData.length;
-                        document.getElementById('stat-total-tokens').textContent = totalTokens.toLocaleString();
-                        document.getElementById('stat-total-referrals').textContent = totalReferrals;
-                        document.getElementById('stat-active-today').textContent = activeToday;
-                        
-                        // Calculate USDT value
-                        const rate = systemSettings.tokenRate || 0.001;
-                        const totalUSDT = totalTokens * rate;
-                        document.getElementById('stat-total-usdt').textContent = `$${totalUSDT.toFixed(2)}`;
-                        
-                        // Load users table if on users page
-                        if (document.getElementById('users-section').classList.contains('active')) {
-                            loadUsers();
+                        if (user.lastActive && user.lastActive.includes(today)) {
+                            activeToday++;
                         }
+                    });
+                    
+                    // Update dashboard stats
+                    document.getElementById('stat-total-users').textContent = snapshot.size;
+                    document.getElementById('stat-total-tokens').textContent = totalTokens.toLocaleString();
+                    document.getElementById('stat-total-referrals').textContent = totalReferrals;
+                    document.getElementById('stat-active-today').textContent = activeToday;
+                    
+                    // Load system settings to calculate USDT value
+                    const configRef = doc(db, "config", "main");
+                    getDoc(configRef).then(configSnap => {
+                        if (configSnap.exists()) {
+                            const config = configSnap.data();
+                            const rate = config.tokenRate || 0.001;
+                            const totalUSDT = totalTokens * rate;
+                            document.getElementById('stat-total-usdt').textContent = `$${totalUSDT.toFixed(2)}`;
+                        }
+                    });
+                    
+                    // Load users table if on users page
+                    if (document.getElementById('users-section').classList.contains('active')) {
+                        loadUsers();
                     }
                 });
                 
-                // Load withdrawal requests - FIXED PATH
-                const withdrawalsRef = database.ref('withdrawals');
-                withdrawalsRef.on('value', (snapshot) => {
-                    let pendingCount = 0;
-                    if (snapshot.exists()) {
-                        snapshot.forEach((childSnapshot) => {
-                            const withdrawal = childSnapshot.val();
-                            if (withdrawal.status === 'pending') {
-                                pendingCount++;
-                            }
-                        });
-                    }
-                    document.getElementById('stat-pending-withdrawals').textContent = pendingCount;
+                // Load pending withdrawals
+                const withdrawalsQuery = query(collection(db, "withdrawals"), where("status", "==", "pending"));
+                onSnapshot(withdrawalsQuery, (snapshot) => {
+                    document.getElementById('stat-pending-withdrawals').textContent = snapshot.size;
                 });
                 
                 // Load recent activity
@@ -1092,17 +1333,24 @@
                 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
-                alert('Error loading dashboard data. Please refresh.');
+                showAlert('Error loading dashboard data. Please refresh.', 'error');
             }
+        }
+
+        // Refresh all data
+        function refreshAllData() {
+            loadDashboardData();
+            showAlert('Data refreshed successfully!', 'success');
         }
 
         // Load users with pagination
         function loadUsers() {
             filteredUsers = usersData;
+            currentPage = 1;
             renderUsersTable();
         }
 
-        // Render users table - FIXED DATA STRUCTURE
+        // Render users table
         function renderUsersTable() {
             const tbody = document.getElementById('users-table-body');
             
@@ -1124,38 +1372,26 @@
             tbody.innerHTML = '';
             
             pageUsers.forEach(user => {
-                // FIXED: Handle both data structures
-                let tokens = 0;
-                let usdt = 0;
-                
-                if (user.appState) {
-                    tokens = user.appState.tokens || 0;
-                    usdt = user.appState.usdt || 0;
-                } else if (user.tokens !== undefined) {
-                    tokens = user.tokens || 0;
-                    usdt = user.usdt || 0;
-                }
-                
                 const row = document.createElement('tr');
                 
                 row.innerHTML = `
-                    <td>${user.userId || user.id}</td>
+                    <td>${user.id || user.uid}</td>
                     <td>${user.name || 'Guest Bee'}</td>
-                    <td>${tokens.toLocaleString()}</td>
-                    <td>$${usdt.toFixed(4)}</td>
+                    <td>${(user.balance || 0).toLocaleString()}</td>
+                    <td>$${((user.balance || 0) * 0.001).toFixed(4)}</td>
                     <td>${user.referrals || 0}</td>
                     <td>
                         <span style="
                             padding: 4px 8px;
                             border-radius: 4px;
-                            background-color: ${(user.status === 'active' || !user.status) ? 'var(--green)' : 'var(--red)'};
+                            background-color: ${(user.isBlocked ? 'var(--red)' : 'var(--green)')};
                             color: white;
                             font-size: 12px;
                         ">
-                            ${user.status || 'active'}
+                            ${user.isBlocked ? 'Blocked' : 'Active'}
                         </span>
                     </td>
-                    <td>${user.joinedDate ? new Date(user.joinedDate).toLocaleDateString() : 'N/A'}</td>
+                    <td>${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
                     <td>
                         <button class="action-btn view-btn" onclick="viewUserDetails('${user.id}')">
                             <i class="fas fa-eye"></i>
@@ -1163,8 +1399,8 @@
                         <button class="action-btn edit-btn" onclick="editUser('${user.id}')">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="action-btn delete-btn" onclick="deleteUser('${user.id}')">
-                            <i class="fas fa-trash"></i>
+                        <button class="action-btn ${user.isBlocked ? 'edit-btn' : 'delete-btn'}" onclick="toggleBlockUser('${user.id}', ${user.isBlocked || false})">
+                            ${user.isBlocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-ban"></i>'}
                         </button>
                     </td>
                 `;
@@ -1212,10 +1448,10 @@
                 filteredUsers = usersData;
             } else {
                 filteredUsers = usersData.filter(user => 
-                    (user.userId && user.userId.toLowerCase().includes(searchTerm)) ||
+                    (user.id && user.id.toLowerCase().includes(searchTerm)) ||
                     (user.name && user.name.toLowerCase().includes(searchTerm)) ||
-                    (user.telegramId && user.telegramId.toString().includes(searchTerm)) ||
-                    (user.email && user.email.toLowerCase().includes(searchTerm))
+                    (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+                    (user.referralCode && user.referralCode.toLowerCase().includes(searchTerm))
                 );
             }
             
@@ -1223,311 +1459,289 @@
             renderUsersTable();
         }
 
+        // Clear user search
+        function clearUserSearch() {
+            document.getElementById('user-search').value = '';
+            filteredUsers = usersData;
+            currentPage = 1;
+            renderUsersTable();
+        }
+
         // View user details
         async function viewUserDetails(userId) {
-            const userRef = database.ref('users/' + userId);
-            const snapshot = await userRef.once('value');
-            
-            if (snapshot.exists()) {
-                const user = snapshot.val();
+            try {
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
                 
-                // Get correct data structure
-                let tokens = 0;
-                let usdt = 0;
-                
-                if (user.appState) {
-                    tokens = user.appState.tokens || 0;
-                    usdt = user.appState.usdt || 0;
-                } else if (user.tokens !== undefined) {
-                    tokens = user.tokens || 0;
-                    usdt = user.usdt || 0;
+                if (userSnap.exists()) {
+                    const user = userSnap.data();
+                    
+                    alert(`
+                        User Details:
+                        ID: ${userId}
+                        Name: ${user.name || 'N/A'}
+                        Email: ${user.email || 'N/A'}
+                        Balance: ${user.balance || 0} tokens
+                        USDT Value: $${((user.balance || 0) * 0.001).toFixed(4)}
+                        Referrals: ${user.referrals || 0}
+                        Referral Code: ${user.referralCode || 'N/A'}
+                        Status: ${user.isBlocked ? 'Blocked' : 'Active'}
+                        Joined: ${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleString() : 'N/A'}
+                        Last Active: ${user.lastActive || 'N/A'}
+                    `);
+                } else {
+                    showAlert('User not found', 'error');
                 }
-                
-                alert(`
-                    User Details:
-                    ID: ${user.userId || userId}
-                    Name: ${user.name || 'N/A'}
-                    Telegram ID: ${user.telegramId || 'N/A'}
-                    Tokens: ${tokens.toLocaleString()}
-                    USDT: $${usdt.toFixed(4)}
-                    Referrals: ${user.referrals || 0}
-                    Ads Watched: ${user.totalAdsWatched || 0}
-                    Tasks Completed: ${user.tasksCompleted || 0}
-                    Joined: ${user.joinedDate || 'N/A'}
-                    Last Active: ${user.lastActive || 'N/A'}
-                `);
+            } catch (error) {
+                console.error('Error viewing user details:', error);
+                showAlert('Error loading user details', 'error');
             }
         }
 
-        // Edit user - FIXED DATA STRUCTURE
+        // Edit user
         async function editUser(userId) {
-            const userRef = database.ref('users/' + userId);
-            const snapshot = await userRef.once('value');
-            
-            if (snapshot.exists()) {
-                const user = snapshot.val();
+            try {
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
                 
-                // Get correct data structure
-                let tokens = 0;
-                let usdt = 0;
-                
-                if (user.appState) {
-                    tokens = user.appState.tokens || 0;
-                    usdt = user.appState.usdt || 0;
-                } else if (user.tokens !== undefined) {
-                    tokens = user.tokens || 0;
-                    usdt = user.usdt || 0;
+                if (userSnap.exists()) {
+                    const user = userSnap.data();
+                    
+                    // Fill modal form
+                    document.getElementById('edit-user-id').value = userId;
+                    document.getElementById('edit-user-name').value = user.name || '';
+                    document.getElementById('edit-user-email').value = user.email || '';
+                    document.getElementById('edit-user-tokens').value = user.balance || 0;
+                    document.getElementById('edit-user-usdt').value = ((user.balance || 0) * 0.001).toFixed(4);
+                    document.getElementById('edit-user-referrals').value = user.referrals || 0;
+                    document.getElementById('edit-user-status').value = user.isBlocked ? 'banned' : 'active';
+                    document.getElementById('edit-user-referral-code').value = user.referralCode || '';
+                    
+                    // Store user ID for saving
+                    document.getElementById('edit-user-form').dataset.userId = userId;
+                    
+                    // Show modal
+                    openModal('user-edit-modal');
+                } else {
+                    showAlert('User not found', 'error');
                 }
-                
-                // Fill modal form
-                document.getElementById('edit-user-id').value = user.userId || userId;
-                document.getElementById('edit-user-name').value = user.name || '';
-                document.getElementById('edit-user-tokens').value = tokens;
-                document.getElementById('edit-user-usdt').value = usdt;
-                document.getElementById('edit-user-referrals').value = user.referrals || 0;
-                document.getElementById('edit-user-status').value = user.status || 'active';
-                
-                // Store user ID and data structure for saving
-                document.getElementById('edit-user-form').dataset.userId = userId;
-                document.getElementById('edit-user-form').dataset.hasAppState = !!user.appState;
-                
-                // Show modal
-                openModal('user-edit-modal');
+            } catch (error) {
+                console.error('Error loading user for edit:', error);
+                showAlert('Error loading user data', 'error');
             }
         }
 
-        // Save user edits - FIXED DATA STRUCTURE
+        // Save user edits
         async function saveUserEdits() {
             const userId = document.getElementById('edit-user-form').dataset.userId;
-            const hasAppState = document.getElementById('edit-user-form').dataset.hasAppState === 'true';
             
-            if (!userId) return;
-            
-            const userRef = database.ref('users/' + userId);
-            
-            try {
-                // Get current user data
-                const snapshot = await userRef.once('value');
-                const currentData = snapshot.exists() ? snapshot.val() : {};
-                
-                // Prepare updates based on data structure
-                let updates = {
-                    name: document.getElementById('edit-user-name').value,
-                    referrals: parseInt(document.getElementById('edit-user-referrals').value) || 0,
-                    status: document.getElementById('edit-user-status').value
-                };
-                
-                // Handle tokens and USDT based on data structure
-                const newTokens = parseInt(document.getElementById('edit-user-tokens').value) || 0;
-                const newUSDT = parseFloat(document.getElementById('edit-user-usdt').value) || 0;
-                
-                if (hasAppState) {
-                    updates.appState = {
-                        ...(currentData.appState || {}),
-                        tokens: newTokens,
-                        usdt: newUSDT
-                    };
-                } else {
-                    updates.tokens = newTokens;
-                    updates.usdt = newUSDT;
-                }
-                
-                // Update user
-                await userRef.update(updates);
-                
-                // Log the action
-                await logAdminAction(`Edited user ${userId} - Tokens: ${newTokens}, USDT: ${newUSDT}`);
-                
-                alert('User updated successfully!');
-                closeModal('user-edit-modal');
-                loadDashboardData(); // Refresh data
-                
-            } catch (error) {
-                console.error('Error updating user:', error);
-                alert('Error updating user. Please try again.');
-            }
-        }
-
-        // Delete user (with confirmation)
-        async function deleteUser(userId) {
-            if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            if (!userId) {
+                showAlert('User ID not found', 'error');
                 return;
             }
             
+            const userRef = doc(db, "users", userId);
+            
             try {
-                const userRef = database.ref('users/' + userId);
+                const tokens = parseInt(document.getElementById('edit-user-tokens').value) || 0;
+                const status = document.getElementById('edit-user-status').value;
                 
-                // Get user data for logging
-                const snapshot = await userRef.once('value');
-                const userData = snapshot.val();
+                const updates = {
+                    name: document.getElementById('edit-user-name').value,
+                    email: document.getElementById('edit-user-email').value,
+                    balance: tokens,
+                    referrals: parseInt(document.getElementById('edit-user-referrals').value) || 0,
+                    isBlocked: status === 'banned' || status === 'suspended',
+                    referralCode: document.getElementById('edit-user-referral-code').value,
+                    updatedAt: serverTimestamp()
+                };
                 
-                // Delete user
-                await userRef.remove();
-                
-                // Also delete user's appState if exists
-                const appStateRef = database.ref('appState/' + userId);
-                await appStateRef.remove();
+                await updateDoc(userRef, updates);
                 
                 // Log the action
-                await logAdminAction(`Deleted user ${userId} (${userData?.name || 'Unknown'})`);
+                await logAdminAction(`Edited user ${userId} - Tokens: ${tokens}, Status: ${status}`);
                 
-                alert('User deleted successfully!');
-                loadDashboardData(); // Refresh data
+                showAlert('User updated successfully!', 'success');
+                closeModal('user-edit-modal');
+                loadDashboardData();
                 
             } catch (error) {
-                console.error('Error deleting user:', error);
-                alert('Error deleting user. Please try again.');
+                console.error('Error updating user:', error);
+                showAlert('Error updating user. Please try again.', 'error');
+            }
+        }
+
+        // Toggle block user
+        async function toggleBlockUser(userId, isCurrentlyBlocked) {
+            const action = isCurrentlyBlocked ? 'unblock' : 'block';
+            const confirmed = await showConfirm(`Are you sure you want to ${action} this user?`);
+            
+            if (!confirmed) return;
+            
+            try {
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, {
+                    isBlocked: !isCurrentlyBlocked,
+                    updatedAt: serverTimestamp()
+                });
+                
+                // Log the action
+                await logAdminAction(`${action}ed user ${userId}`);
+                
+                showAlert(`User ${action}ed successfully!`, 'success');
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error(`Error ${action}ing user:`, error);
+                showAlert(`Error ${action}ing user. Please try again.`, 'error');
             }
         }
 
         // Load withdrawals
         async function loadWithdrawals() {
             try {
-                const withdrawalsRef = database.ref('withdrawals');
-                const snapshot = await withdrawalsRef.once('value');
-                
-                const tbody = document.getElementById('withdrawals-table-body');
-                tbody.innerHTML = '';
-                
-                if (!snapshot.exists()) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 30px;">
-                                No withdrawal requests found
+                const withdrawalsQuery = query(collection(db, "withdrawals"));
+                const unsubscribe = onSnapshot(withdrawalsQuery, (snapshot) => {
+                    const tbody = document.getElementById('withdrawals-table-body');
+                    tbody.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 30px;">
+                                    No withdrawal requests found
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    snapshot.forEach((docSnap) => {
+                        const request = docSnap.data();
+                        const row = document.createElement('tr');
+                        
+                        let statusColor = 'var(--blue)';
+                        if (request.status === 'approved') statusColor = 'var(--green)';
+                        if (request.status === 'rejected') statusColor = 'var(--red)';
+                        
+                        row.innerHTML = `
+                            <td>${docSnap.id.substring(0, 8)}</td>
+                            <td>${request.userId || 'N/A'}</td>
+                            <td>$${request.amount?.toFixed(4) || '0.0000'}</td>
+                            <td style="font-family: monospace;">${request.paymentDetail || 'Not provided'}</td>
+                            <td>
+                                <span style="
+                                    padding: 4px 8px;
+                                    border-radius: 4px;
+                                    background-color: ${statusColor};
+                                    color: white;
+                                    font-size: 12px;
+                                ">
+                                    ${request.status || 'pending'}
+                                </span>
                             </td>
-                        </tr>
-                    `;
-                    return;
-                }
-                
-                snapshot.forEach((childSnapshot) => {
-                    const withdrawal = childSnapshot.val();
-                    const row = document.createElement('tr');
-                    
-                    let statusColor = 'var(--blue)';
-                    if (withdrawal.status === 'completed') statusColor = 'var(--green)';
-                    if (withdrawal.status === 'rejected') statusColor = 'var(--red)';
-                    
-                    row.innerHTML = `
-                        <td>${childSnapshot.key.substring(0, 8)}</td>
-                        <td>${withdrawal.userId}</td>
-                        <td>$${withdrawal.amount?.toFixed(4) || '0.0000'}</td>
-                        <td style="font-family: monospace;">${withdrawal.walletAddress || 'Not provided'}</td>
-                        <td>
-                            <span style="
-                                padding: 4px 8px;
-                                border-radius: 4px;
-                                background-color: ${statusColor};
-                                color: white;
-                                font-size: 12px;
-                            ">
-                                ${withdrawal.status || 'pending'}
-                            </span>
-                        </td>
-                        <td>${withdrawal.timestamp ? new Date(withdrawal.timestamp).toLocaleDateString() : 'N/A'}</td>
-                        <td>
-                            ${withdrawal.status === 'pending' ? `
-                                <button class="action-btn edit-btn" onclick="processWithdrawal('${childSnapshot.key}', 'completed')">
-                                    Approve
-                                </button>
-                                <button class="action-btn delete-btn" onclick="processWithdrawal('${childSnapshot.key}', 'rejected')">
-                                    Reject
-                                </button>
-                            ` : 'Processed'}
-                        </td>
-                    `;
-                    
-                    tbody.appendChild(row);
+                            <td>${request.requestedAt ? new Date(request.requestedAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
+                            <td>
+                                ${request.status === 'pending' ? `
+                                    <button class="action-btn edit-btn" onclick="handleWithdrawal('${docSnap.id}', 'approved')">
+                                        Approve
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="handleWithdrawal('${docSnap.id}', 'rejected')">
+                                        Reject
+                                    </button>
+                                ` : 'Processed'}
+                            </td>
+                        `;
+                        
+                        tbody.appendChild(row);
+                    });
                 });
+                
+                // Store unsubscribe function
+                window.withdrawalsUnsubscribe = unsubscribe;
                 
             } catch (error) {
                 console.error('Error loading withdrawals:', error);
+                showAlert('Error loading withdrawals', 'error');
             }
         }
 
-        // Process withdrawal
-        async function processWithdrawal(withdrawalId, action) {
-            if (!confirm(`Are you sure you want to ${action} this withdrawal?`)) {
-                return;
-            }
+        // Handle withdrawal
+        async function handleWithdrawal(requestId, newStatus) {
+            const statusText = newStatus === 'approved' ? 'approve' : 'reject';
+            const confirmed = await showConfirm(`Are you sure you want to ${statusText} this withdrawal?`);
+            
+            if (!confirmed) return;
             
             try {
-                const withdrawalRef = database.ref('withdrawals/' + withdrawalId);
+                const requestRef = doc(db, "withdrawals", requestId);
                 
-                // Update withdrawal status
-                await withdrawalRef.update({
-                    status: action,
-                    processedAt: new Date().toISOString(),
-                    processedBy: ADMIN_EMAIL
-                });
+                // First get the current request data
+                const requestSnap = await getDoc(requestRef);
+                if (!requestSnap.exists()) {
+                    showAlert('Withdrawal request not found', 'error');
+                    return;
+                }
                 
-                // If approved, update user's USDT balance
-                if (action === 'completed') {
-                    const snapshot = await withdrawalRef.once('value');
-                    const withdrawal = snapshot.val();
+                const requestData = requestSnap.data();
+                
+                if (newStatus === 'rejected') {
+                    // Refund balance to user
+                    const userRef = doc(db, "users", requestData.userId);
+                    const userSnap = await getDoc(userRef);
                     
-                    // Find user and update balance
-                    const userRef = database.ref('users/' + withdrawal.userId);
-                    const userSnapshot = await userRef.once('value');
-                    const userData = userSnapshot.val();
-                    
-                    if (userData) {
-                        const withdrawalAmount = withdrawal.amount || 0;
-                        let currentUSDT = 0;
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        const currentBalance = userData.balance || 0;
+                        const withdrawalAmountInTokens = (requestData.amount || 0) * 1000; // Assuming 0.001 rate
                         
-                        // Handle different data structures
-                        if (userData.appState) {
-                            currentUSDT = userData.appState.usdt || 0;
-                            const newUSDT = Math.max(0, currentUSDT - withdrawalAmount);
-                            
-                            await userRef.update({
-                                'appState.usdt': newUSDT
-                            });
-                        } else if (userData.usdt !== undefined) {
-                            currentUSDT = userData.usdt || 0;
-                            const newUSDT = Math.max(0, currentUSDT - withdrawalAmount);
-                            
-                            await userRef.update({
-                                usdt: newUSDT
-                            });
-                        }
+                        await updateDoc(userRef, {
+                            balance: currentBalance + withdrawalAmountInTokens,
+                            updatedAt: serverTimestamp()
+                        });
                     }
                 }
                 
-                // Log the action
-                await logAdminAction(`${action} withdrawal ${withdrawalId.substring(0, 8)}`);
+                // Update withdrawal status
+                await updateDoc(requestRef, {
+                    status: newStatus,
+                    processedAt: serverTimestamp(),
+                    processedBy: currentAdmin.uid
+                });
                 
-                alert(`Withdrawal ${action} successfully!`);
-                loadWithdrawals(); // Refresh table
-                loadDashboardData(); // Refresh stats
+                // Log the action
+                await logAdminAction(`${statusText}ed withdrawal ${requestId.substring(0, 8)}`);
+                
+                showAlert(`Withdrawal ${statusText}d successfully!`, 'success');
+                loadDashboardData();
                 
             } catch (error) {
                 console.error('Error processing withdrawal:', error);
-                alert('Error processing withdrawal. Please try again.');
+                showAlert('Error processing withdrawal. Please try again.', 'error');
             }
         }
 
         // Load referrals
         async function loadReferrals() {
             try {
-                const usersRef = database.ref('users');
-                const snapshot = await usersRef.once('value');
+                const usersQuery = query(collection(db, "users"), where("referrals", ">", 0));
+                const usersSnap = await getDocs(usersQuery);
                 
                 let topReferrers = [];
                 let totalReferrals = 0;
                 
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const user = childSnapshot.val();
+                if (!usersSnap.empty) {
+                    usersSnap.forEach((doc) => {
+                        const user = doc.data();
                         const referrals = user.referrals || 0;
                         totalReferrals += referrals;
                         
                         if (referrals > 0) {
                             topReferrers.push({
                                 name: user.name || 'Anonymous',
-                                userId: user.userId || childSnapshot.key,
+                                userId: doc.id,
                                 referrals: referrals,
-                                earnings: (referrals * (systemSettings.referralReward || 10))
+                                earnings: (referrals * 10) // Assuming 10 tokens per referral
                             });
                         }
                     });
@@ -1545,7 +1759,7 @@
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
                                 <div>
                                     <strong>${index + 1}. ${referrer.name}</strong><br>
-                                    <small>${referrer.userId}</small>
+                                    <small>${referrer.userId.substring(0, 8)}...</small>
                                 </div>
                                 <div style="text-align: right;">
                                     <div>${referrer.referrals} referrals</div>
@@ -1566,10 +1780,10 @@
                         <strong>Total Referrals:</strong> ${totalReferrals}
                     </div>
                     <div style="margin-bottom: 10px;">
-                        <strong>Reward per Referral:</strong> ${systemSettings.referralReward || 10} tokens
+                        <strong>Reward per Referral:</strong> 10 tokens
                     </div>
                     <div style="margin-bottom: 10px;">
-                        <strong>Total Tokens Distributed:</strong> ${totalReferrals * (systemSettings.referralReward || 10)} tokens
+                        <strong>Total Tokens Distributed:</strong> ${totalReferrals * 10} tokens
                     </div>
                 `;
                 
@@ -1581,25 +1795,26 @@
         // Load system settings
         async function loadSystemSettings() {
             try {
-                const settingsRef = database.ref('systemSettings');
-                const snapshot = await settingsRef.once('value');
+                const configRef = doc(db, "config", "main");
+                const configSnap = await getDoc(configRef);
                 
-                if (snapshot.exists()) {
-                    systemSettings = snapshot.val();
+                if (configSnap.exists()) {
+                    const config = configSnap.data();
                     
                     // Update form fields
-                    document.getElementById('token-rate').value = systemSettings.tokenRate || 0.001;
-                    document.getElementById('daily-airdrop').value = systemSettings.dailyAirdrop || 50;
-                    document.getElementById('ad-reward').value = systemSettings.adReward || 10;
-                    document.getElementById('task-reward').value = systemSettings.taskReward || 50;
-                    document.getElementById('referral-reward').value = systemSettings.referralReward || 10;
-                    document.getElementById('min-referrals').value = systemSettings.minReferrals || 20;
-                    document.getElementById('min-withdrawal').value = systemSettings.minWithdrawal || 1.0;
-                    document.getElementById('referral-link-base').value = systemSettings.referralLinkBase || 'https://t.me/your_bot_or_app?start=';
-                    document.getElementById('maintenance-message').value = systemSettings.maintenanceMessage || 'System is running normally...';
+                    document.getElementById('token-rate').value = config.tokenRate || 0.001;
+                    document.getElementById('daily-airdrop').value = config.dailyAirdrop || 50;
+                    document.getElementById('ad-reward').value = config.adReward || 10;
+                    document.getElementById('task-reward').value = config.taskReward || 50;
+                    document.getElementById('referral-reward').value = config.referralReward || 10;
+                    document.getElementById('min-referrals').value = config.minReferrals || 20;
+                    document.getElementById('min-withdrawal').value = config.minWithdrawal || 1.0;
+                    document.getElementById('daily-ad-limit').value = config.dailyAdLimit || 100;
+                    document.getElementById('payment-methods').value = config.paymentMethods ? config.paymentMethods.join(', ') : 'Binance, PayPal, Skrill';
+                    document.getElementById('maintenance-message').value = config.maintenanceMessage || 'System is running normally...';
                 } else {
                     // Use default values
-                    systemSettings = {
+                    const defaultConfig = {
                         tokenRate: 0.001,
                         dailyAirdrop: 50,
                         adReward: 10,
@@ -1607,32 +1822,30 @@
                         referralReward: 10,
                         minReferrals: 20,
                         minWithdrawal: 1.0,
-                        referralLinkBase: 'https://t.me/your_bot_or_app?start=',
-                        maintenanceMessage: 'System is running normally...',
-                        lastUpdated: new Date().toISOString()
+                        dailyAdLimit: 100,
+                        paymentMethods: ["Binance", "PayPal", "Skrill", "Perfect Money"],
+                        maintenanceMessage: "System is running normally...",
+                        lastUpdated: serverTimestamp(),
+                        updatedBy: currentAdmin ? currentAdmin.uid : "system"
                     };
                     
                     // Save default settings
-                    await settingsRef.set(systemSettings);
+                    await setDoc(configRef, defaultConfig);
                     
                     // Update form fields
                     loadSystemSettings(); // Reload
                 }
                 
-                // Also load these settings to a more accessible location for main app
-                await updateGlobalSettingsForUsers();
-                
-                updateAllUserStats();
-                
             } catch (error) {
                 console.error('Error loading system settings:', error);
+                showAlert('Error loading system settings', 'error');
             }
         }
 
         // Save system settings
         async function saveSystemSettings() {
             try {
-                const settingsRef = database.ref('systemSettings');
+                const configRef = doc(db, "config", "main");
                 
                 const updatedSettings = {
                     tokenRate: parseFloat(document.getElementById('token-rate').value) || 0.001,
@@ -1642,58 +1855,124 @@
                     referralReward: parseInt(document.getElementById('referral-reward').value) || 10,
                     minReferrals: parseInt(document.getElementById('min-referrals').value) || 20,
                     minWithdrawal: parseFloat(document.getElementById('min-withdrawal').value) || 1.0,
-                    referralLinkBase: document.getElementById('referral-link-base').value || 'https://t.me/your_bot_or_app?start=',
+                    dailyAdLimit: parseInt(document.getElementById('daily-ad-limit').value) || 100,
+                    paymentMethods: document.getElementById('payment-methods').value.split(',').map(s => s.trim()).filter(Boolean),
                     maintenanceMessage: document.getElementById('maintenance-message').value || 'System is running normally...',
-                    lastUpdated: new Date().toISOString(),
-                    updatedBy: ADMIN_EMAIL
+                    lastUpdated: serverTimestamp(),
+                    updatedBy: currentAdmin.uid
                 };
                 
                 // Save settings
-                await settingsRef.set(updatedSettings);
-                systemSettings = updatedSettings;
-                
-                // Also update in a location accessible to main app
-                await updateGlobalSettingsForUsers();
+                await setDoc(configRef, updatedSettings, { merge: true });
                 
                 // Log the action
                 await logAdminAction('Updated system settings');
                 
-                alert('System settings saved successfully!');
-                updateAllUserStats();
+                showAlert('System settings saved successfully!', 'success');
+                loadDashboardData();
                 
             } catch (error) {
                 console.error('Error saving system settings:', error);
-                alert('Error saving settings. Please try again.');
+                showAlert('Error saving settings. Please try again.', 'error');
             }
         }
 
-        // Update global settings for user app
-        async function updateGlobalSettingsForUsers() {
+        // Load bot links
+        async function loadBotLinks() {
             try {
-                // Save settings to a more accessible location for main app
-                const globalSettingsRef = database.ref('globalSettings');
-                await globalSettingsRef.set(systemSettings);
+                const botLinksRef = doc(db, "config", "botLinks");
+                const botLinksSnap = await getDoc(botLinksRef);
                 
-                console.log('Global settings updated for user app');
+                if (botLinksSnap.exists()) {
+                    const botLinks = botLinksSnap.data();
+                    
+                    // Update form fields
+                    document.getElementById('telegram-bot-link').value = botLinks.telegram || '';
+                    document.getElementById('youtube-channel-link').value = botLinks.youtube || '';
+                    document.getElementById('referral-link-base').value = botLinks.referralBase || '';
+                    document.getElementById('app-download-link').value = botLinks.appDownload || '';
+                }
+                
             } catch (error) {
-                console.error('Error updating global settings:', error);
+                console.error('Error loading bot links:', error);
             }
         }
 
-        // Update all user statistics
-        async function updateAllUserStats() {
-            loadDashboardData();
+        // Save bot links
+        async function saveBotLinks() {
+            try {
+                const botLinksRef = doc(db, "config", "botLinks");
+                
+                const botLinks = {
+                    telegram: document.getElementById('telegram-bot-link').value,
+                    youtube: document.getElementById('youtube-channel-link').value,
+                    referralBase: document.getElementById('referral-link-base').value,
+                    appDownload: document.getElementById('app-download-link').value,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: currentAdmin.uid
+                };
+                
+                // Save bot links
+                await setDoc(botLinksRef, botLinks, { merge: true });
+                
+                // Log the action
+                await logAdminAction('Updated bot links');
+                
+                showAlert('Bot links saved successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving bot links:', error);
+                showAlert('Error saving bot links. Please try again.', 'error');
+            }
+        }
+
+        // Send notification to all users
+        async function sendNotificationToAllUsers() {
+            const title = document.getElementById('notification-title').value;
+            const message = document.getElementById('notification-message').value;
+            const type = document.getElementById('notification-type').value;
+            
+            if (!title || !message) {
+                showAlert('Please enter both title and message', 'error');
+                return;
+            }
+            
+            try {
+                const notificationsRef = collection(db, "notifications");
+                
+                await addDoc(notificationsRef, {
+                    title: title,
+                    message: message,
+                    type: type,
+                    createdAt: serverTimestamp(),
+                    sentBy: currentAdmin.uid,
+                    forAllUsers: true
+                });
+                
+                // Log the action
+                await logAdminAction(`Sent notification to all users: ${title}`);
+                
+                showAlert('Notification sent successfully to all users!', 'success');
+                
+                // Clear form
+                document.getElementById('notification-title').value = '';
+                document.getElementById('notification-message').value = '';
+                
+            } catch (error) {
+                console.error('Error sending notification:', error);
+                showAlert('Error sending notification. Please try again.', 'error');
+            }
         }
 
         // Load recent activity
         async function loadRecentActivity() {
             try {
-                const logsRef = database.ref('adminLogs');
-                const snapshot = await logsRef.limitToLast(10).once('value');
+                const logsQuery = query(collection(db, "adminLogs"), where("adminId", "==", currentAdmin.uid));
+                const logsSnap = await getDocs(logsQuery);
                 
                 const activityDiv = document.getElementById('recent-activity');
                 
-                if (!snapshot.exists()) {
+                if (logsSnap.empty) {
                     activityDiv.innerHTML = '<p>No recent activity</p>';
                     return;
                 }
@@ -1701,20 +1980,20 @@
                 let html = '';
                 const logs = [];
                 
-                snapshot.forEach((childSnapshot) => {
-                    logs.push(childSnapshot.val());
+                logsSnap.forEach((doc) => {
+                    logs.push(doc.data());
                 });
                 
                 // Sort by timestamp (newest first)
-                logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                logs.sort((a, b) => b.timestamp - a.timestamp);
                 
                 // Display logs
                 logs.slice(0, 5).forEach(log => {
-                    const timeAgo = getTimeAgo(log.timestamp);
+                    const time = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'N/A';
                     html += `
                         <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--admin-border);">
                             <div style="font-weight: bold;">${log.action}</div>
-                            <small style="color: #94A3B8;">${timeAgo} by ${log.admin || 'System'}</small>
+                            <small style="color: #94A3B8;">${time}</small>
                         </div>
                     `;
                 });
@@ -1729,12 +2008,12 @@
         // Load activity logs
         async function loadActivityLogs() {
             try {
-                const logsRef = database.ref('adminLogs');
-                const snapshot = await logsRef.once('value');
+                const logsQuery = query(collection(db, "adminLogs"), where("adminId", "==", currentAdmin.uid));
+                const logsSnap = await getDocs(logsQuery);
                 
                 const logsDiv = document.getElementById('activity-logs');
                 
-                if (!snapshot.exists()) {
+                if (logsSnap.empty) {
                     logsDiv.innerHTML = '<p>No activity logs found</p>';
                     return;
                 }
@@ -1742,19 +2021,19 @@
                 let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
                 const logs = [];
                 
-                snapshot.forEach((childSnapshot) => {
+                logsSnap.forEach((doc) => {
                     logs.push({
-                        id: childSnapshot.key,
-                        ...childSnapshot.val()
+                        id: doc.id,
+                        ...doc.data()
                     });
                 });
                 
                 // Sort by timestamp (newest first)
-                logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                logs.sort((a, b) => b.timestamp - a.timestamp);
                 
                 // Display logs
                 logs.forEach(log => {
-                    const time = new Date(log.timestamp).toLocaleString();
+                    const time = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'N/A';
                     html += `
                         <div style="
                             padding: 15px;
@@ -1767,7 +2046,7 @@
                                 <small style="color: #94A3B8;">${time}</small>
                             </div>
                             <div style="color: #94A3B8; font-size: 14px;">
-                                Admin: ${log.admin || 'System'} | IP: ${log.ip || 'N/A'}
+                                Admin: ${log.adminEmail || currentAdmin.email}
                             </div>
                         </div>
                     `;
@@ -1795,11 +2074,12 @@
         // Log admin action
         async function logAdminAction(action) {
             try {
-                const logsRef = database.ref('adminLogs');
-                await logsRef.push({
+                const logsRef = collection(db, "adminLogs");
+                await addDoc(logsRef, {
                     action: action,
-                    admin: ADMIN_EMAIL,
-                    timestamp: new Date().toISOString(),
+                    adminId: currentAdmin.uid,
+                    adminEmail: currentAdmin.email,
+                    timestamp: serverTimestamp(),
                     ip: 'N/A'
                 });
             } catch (error) {
@@ -1816,33 +2096,93 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
-        function getTimeAgo(timestamp) {
-            const now = new Date();
-            const past = new Date(timestamp);
-            const diffMs = now - past;
+        // Show alert function
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alert-container');
+            const alertId = 'alert-' + Date.now();
             
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${type}`;
+            alertDiv.id = alertId;
             
-            if (diffMins < 60) {
-                return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
-            } else if (diffHours < 24) {
-                return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-            } else {
-                return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-            }
+            alertDiv.innerHTML = `
+                <div class="alert-content">
+                    <div class="alert-message">${message}</div>
+                    <button class="alert-close" onclick="document.getElementById('${alertId}').remove()">&times;</button>
+                </div>
+            `;
+            
+            alertContainer.appendChild(alertDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (document.getElementById(alertId)) {
+                    document.getElementById(alertId).remove();
+                }
+            }, 5000);
+        }
+
+        // Show confirm dialog
+        function showConfirm(message) {
+            return new Promise((resolve) => {
+                const confirmModal = document.getElementById('confirm-modal');
+                const confirmMessage = document.getElementById('confirm-message');
+                const confirmOk = document.getElementById('confirm-ok');
+                const confirmCancel = document.getElementById('confirm-cancel');
+                
+                confirmMessage.textContent = message;
+                confirmModal.style.display = 'flex';
+                
+                const okHandler = () => {
+                    confirmModal.style.display = 'none';
+                    resolve(true);
+                    confirmOk.removeEventListener('click', okHandler);
+                    confirmCancel.removeEventListener('click', cancelHandler);
+                };
+                
+                const cancelHandler = () => {
+                    confirmModal.style.display = 'none';
+                    resolve(false);
+                    confirmOk.removeEventListener('click', okHandler);
+                    confirmCancel.removeEventListener('click', cancelHandler);
+                };
+                
+                confirmOk.addEventListener('click', okHandler);
+                confirmCancel.addEventListener('click', cancelHandler);
+            });
         }
 
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modals = document.querySelectorAll('.modal');
+            const modals = document.querySelectorAll('.modal, .confirm-modal');
             modals.forEach(modal => {
                 if (event.target === modal) {
                     modal.style.display = 'none';
                 }
             });
         };
+
+        // Make functions available globally
+        window.showSection = showSection;
+        window.refreshAllData = refreshAllData;
+        window.searchUsers = searchUsers;
+        window.clearUserSearch = clearUserSearch;
+        window.prevPage = prevPage;
+        window.nextPage = nextPage;
+        window.viewUserDetails = viewUserDetails;
+        window.editUser = editUser;
+        window.saveUserEdits = saveUserEdits;
+        window.toggleBlockUser = toggleBlockUser;
+        window.handleWithdrawal = handleWithdrawal;
+        window.filterLogs = filterLogs;
+        window.searchLogs = searchLogs;
+        window.sendNotificationToAllUsers = sendNotificationToAllUsers;
+        window.saveBotLinks = saveBotLinks;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.showAlert = showAlert;
+        window.showConfirm = showConfirm;
+        
     </script>
 </body>
 </html>
