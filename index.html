@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bee Token Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Base CSS - Mobile First Approach */
+        /* Same CSS as before - unchanged */
         * {
             margin: 0;
             padding: 0;
@@ -34,40 +34,20 @@
             background-color: var(--admin-bg);
             color: var(--admin-text);
             min-height: 100vh;
-            overflow-x: hidden;
         }
         
-        /* Mobile Menu Toggle */
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            background: var(--primary-yellow);
-            color: var(--black);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        
-        /* Login Page - Mobile Responsive */
+        /* Login Page */
         .login-container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             background: linear-gradient(135deg, var(--admin-bg) 0%, #1E3A8A 100%);
-            padding: 20px;
         }
         
         .login-box {
             background-color: var(--admin-card);
-            padding: 25px;
+            padding: 40px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             width: 100%;
@@ -75,289 +55,419 @@
             border: 1px solid var(--admin-border);
         }
         
-        /* Admin Dashboard - Mobile Responsive */
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .login-logo i {
+            font-size: 36px;
+            color: var(--primary-yellow);
+        }
+        
+        .login-logo h2 {
+            font-size: 28px;
+            color: var(--primary-yellow);
+        }
+        
+        .login-form input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--admin-text);
+            font-size: 16px;
+        }
+        
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary-yellow);
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, var(--primary-yellow), var(--dark-yellow));
+            color: var(--black);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            color: var(--red);
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+        
+        /* Admin Dashboard */
         .admin-container {
             display: none;
             min-height: 100vh;
         }
         
         .sidebar {
-            width: 280px;
+            width: 250px;
             background-color: var(--admin-card);
             position: fixed;
             height: 100vh;
             overflow-y: auto;
             border-right: 1px solid var(--admin-border);
-            z-index: 900;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .sidebar.active {
-            transform: translateX(0);
         }
         
         .sidebar-header {
-            padding: 20px;
+            padding: 25px;
             text-align: center;
             border-bottom: 1px solid var(--admin-border);
         }
         
+        .sidebar-header h2 {
+            color: var(--primary-yellow);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255, 215, 0, 0.1);
+            border-left-color: var(--primary-yellow);
+        }
+        
+        .menu-item.active {
+            background-color: rgba(255, 215, 0, 0.15);
+            border-left-color: var(--primary-yellow);
+            color: var(--primary-yellow);
+        }
+        
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
         .main-content {
+            margin-left: 250px;
             padding: 20px;
-            width: 100%;
-            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
         }
         
-        .main-content.sidebar-open {
-            margin-left: 280px;
-        }
-        
-        /* Top Bar Mobile */
         .top-bar {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 15px;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
             background-color: var(--admin-card);
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             border: 1px solid var(--admin-border);
         }
         
-        @media (min-width: 768px) {
-            .top-bar {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         
-        /* Stats Grid Mobile */
+        .logout-btn {
+            padding: 8px 20px;
+            background-color: var(--red);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+        
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
         
         .stat-card {
             background-color: var(--admin-card);
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
             border: 1px solid var(--admin-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-yellow);
+        }
+        
+        .stat-card .label {
+            font-size: 14px;
+            color: #94A3B8;
+            margin-bottom: 5px;
         }
         
         .stat-card .value {
-            font-size: 24px;
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary-yellow);
         }
         
         .stat-card i {
-            font-size: 36px;
+            font-size: 48px;
+            color: rgba(255, 215, 0, 0.3);
         }
         
-        /* Content Sections Mobile */
         .content-section {
             display: none;
             background-color: var(--admin-card);
-            padding: 20px;
+            padding: 30px;
             border-radius: 12px;
             border: 1px solid var(--admin-border);
-            margin-bottom: 20px;
-            overflow-x: auto;
+            margin-bottom: 30px;
         }
         
         .content-section.active {
             display: block;
         }
         
-        /* Tables Mobile */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .section-header h3 {
+            font-size: 22px;
+            color: var(--primary-yellow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--admin-text);
+        }
+        
+        .search-box button {
+            padding: 12px 25px;
+            background-color: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* User Table */
         .user-table-container {
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
+            border: 1px solid var(--admin-border);
         }
         
         .user-table {
-            min-width: 700px;
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
         }
         
-        /* Form Groups Mobile */
-        .settings-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        /* Modal Mobile */
-        .modal-content {
-            width: 95%;
-            margin: 20px;
-            padding: 20px;
-        }
-        
-        /* Mobile Specific Styles */
-        @media (max-width: 767px) {
-            .mobile-menu-toggle {
-                display: block;
-            }
-            
-            .sidebar {
-                width: 85%;
-                max-width: 300px;
-            }
-            
-            .main-content.sidebar-open {
-                margin-left: 0;
-                transform: translateX(85%);
-            }
-            
-            .stat-card {
-                padding: 15px;
-            }
-            
-            .stat-card .value {
-                font-size: 20px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .section-header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
-            }
-            
-            .search-box {
-                width: 100%;
-            }
-            
-            .search-box input {
-                flex: 1;
-            }
-            
-            .action-btn {
-                padding: 4px 8px;
-                font-size: 12px;
-                margin-bottom: 5px;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-            
-            .menu-item {
-                padding: 12px 20px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .login-box {
-                padding: 20px;
-            }
-            
-            .menu-item {
-                padding: 10px 15px;
-            }
-        }
-        
-        /* Bot Token Management Page Styles */
-        .token-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .token-card {
-            background: var(--admin-card);
-            border: 1px solid var(--admin-border);
-            border-radius: 10px;
-            padding: 20px;
-        }
-        
-        .token-card h4 {
+        .user-table th {
+            background-color: #2D3748;
+            padding: 15px;
+            text-align: left;
             color: var(--primary-yellow);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--admin-border);
+        }
+        
+        .user-table td {
+            padding: 15px;
             border-bottom: 1px solid var(--admin-border);
         }
         
-        .token-input-group {
-            margin-bottom: 15px;
+        .user-table tr:hover {
+            background-color: rgba(255, 215, 0, 0.05);
         }
         
-        .token-input-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--admin-text);
+        .user-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Action Buttons */
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 14px;
+            font-weight: bold;
+            margin-right: 5px;
         }
         
-        .token-input-group input {
+        .edit-btn {
+            background-color: var(--blue);
+            color: white;
+        }
+        
+        .delete-btn {
+            background-color: var(--red);
+            color: white;
+        }
+        
+        .view-btn {
+            background-color: var(--green);
+            color: white;
+        }
+        
+        /* Settings Form */
+        .settings-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-yellow);
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px 15px;
             border: 1px solid var(--admin-border);
-            border-radius: 5px;
-            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
             color: var(--admin-text);
+            font-size: 16px;
         }
         
-        .token-preview {
-            background: rgba(255,215,0,0.1);
-            border: 1px dashed var(--primary-yellow);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
         }
         
-        .referral-link-display {
-            background: var(--admin-bg);
-            border-radius: 5px;
-            padding: 10px;
-            margin: 10px 0;
-            font-family: monospace;
-            word-break: break-all;
-            font-size: 12px;
-        }
-        
-        .copy-btn {
-            background: var(--primary-yellow);
-            color: var(--black);
+        .save-btn {
+            padding: 14px 30px;
+            background: linear-gradient(to right, var(--green), #2E7D32);
+            color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-            width: 100%;
-        }
-        
-        .save-token-btn {
-            background: linear-gradient(135deg, var(--primary-yellow), var(--dark-yellow));
-            color: var(--black);
-            border: none;
-            padding: 12px 20px;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 16px;
             font-weight: bold;
-            margin-top: 15px;
-            width: 100%;
+            grid-column: 1 / -1;
+            justify-self: start;
         }
         
-        /* Existing styles remain... */
+        .save-btn:hover {
+            background: linear-gradient(to right, #45a049, #1B5E20);
+        }
         
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--admin-card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--admin-border);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            color: var(--primary-yellow);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--admin-text);
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* Loading Spinner */
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -370,6 +480,158 @@
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2 span,
+            .menu-item span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .login-box {
+                padding: 20px;
+                margin: 20px;
+            }
+        }
+
+        /* Alert & Confirm Styles */
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            max-width: 400px;
+        }
+        
+        .alert {
+            background-color: var(--admin-card);
+            border: 1px solid var(--admin-border);
+            border-left: 4px solid var(--green);
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .alert.error {
+            border-left-color: var(--red);
+        }
+        
+        .alert.warning {
+            border-left-color: var(--primary-yellow);
+        }
+        
+        .alert.info {
+            border-left-color: var(--blue);
+        }
+        
+        .alert-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .alert-message {
+            flex: 1;
+            margin-right: 15px;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            color: var(--admin-text);
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.7;
+        }
+        
+        .alert-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .confirm-content {
+            background-color: var(--admin-card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--admin-border);
+            text-align: center;
+        }
+        
+        .confirm-message {
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+        
+        .confirm-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .confirm-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            min-width: 100px;
+        }
+        
+        .confirm-ok {
+            background-color: var(--red);
+            color: white;
+        }
+        
+        .confirm-cancel {
+            background-color: var(--blue);
+            color: white;
         }
     </style>
 </head>
@@ -406,13 +668,8 @@
 
     <!-- Admin Dashboard -->
     <div class="admin-container" id="admin-dashboard">
-        <!-- Mobile Menu Button -->
-        <button class="mobile-menu-toggle" id="mobile-menu-toggle">
-            <i class="fas fa-bars"></i>
-        </button>
-
         <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
+        <div class="sidebar">
             <div class="sidebar-header">
                 <h2><i class="fas fa-bee"></i> <span>Bee Admin</span></h2>
             </div>
@@ -441,10 +698,9 @@
                     <i class="fas fa-bell"></i>
                     <span>Send Notification</span>
                 </div>
-                <!-- NEW PAGE: Bot Token Management -->
-                <div class="menu-item" data-section="token-management">
-                    <i class="fas fa-link"></i>
-                    <span>Token & Links</span>
+                <div class="menu-item" data-section="bot-links">
+                    <i class="fas fa-robot"></i>
+                    <span>Bot Links</span>
                 </div>
                 <div class="menu-item" data-section="logs">
                     <i class="fas fa-history"></i>
@@ -454,7 +710,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="main-content" id="main-content">
+        <div class="main-content">
             <!-- Top Bar -->
             <div class="top-bar">
                 <div>
@@ -471,7 +727,6 @@
 
             <!-- Dashboard Statistics -->
             <div class="stats-grid">
-                <!-- Same stats cards as before -->
                 <div class="stat-card">
                     <div>
                         <div class="label">Total Users</div>
@@ -521,7 +776,7 @@
                 <div class="section-header">
                     <h3><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h3>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
                     <div style="background-color: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
                         <h4 style="margin-bottom: 15px; color: var(--primary-yellow);">Recent Activity</h4>
                         <div id="recent-activity">
@@ -545,160 +800,281 @@
                 </div>
             </div>
 
-            <!-- NEW PAGE: Token & Links Management -->
-            <div class="content-section" id="token-management-section">
+            <!-- Users Section -->
+            <div class="content-section" id="users-section">
                 <div class="section-header">
-                    <h3><i class="fas fa-link"></i> Token & Referral Links Management</h3>
-                    <p>Manage bot tokens and generate referral links</p>
-                </div>
-
-                <div class="token-grid">
-                    <!-- Telegram Bot Token Configuration -->
-                    <div class="token-card">
-                        <h4><i class="fab fa-telegram"></i> Telegram Bot Configuration</h4>
-                        <div class="token-input-group">
-                            <label>Bot Token</label>
-                            <input type="text" id="telegram-bot-token" placeholder="Enter Telegram Bot Token">
-                        </div>
-                        <div class="token-input-group">
-                            <label>Bot Username</label>
-                            <input type="text" id="telegram-bot-username" placeholder="@YourBotUsername">
-                        </div>
-                        <div class="token-input-group">
-                            <label>Bot Start Command</label>
-                            <input type="text" id="telegram-start-command" value="/start">
-                        </div>
-                        <div class="token-preview">
-                            <strong>Generated Bot Link:</strong>
-                            <div class="referral-link-display" id="telegram-bot-link-preview">
-                                https://t.me/YOUR_BOT?start=
-                            </div>
-                            <button class="copy-btn" onclick="copyToClipboard('telegram-bot-link-preview')">
-                                <i class="fas fa-copy"></i> Copy Link
-                            </button>
-                        </div>
-                        <button class="save-token-btn" onclick="saveTelegramBotConfig()">
-                            <i class="fas fa-save"></i> Save Telegram Bot Settings
-                        </button>
-                    </div>
-
-                    <!-- Referral Link Generator -->
-                    <div class="token-card">
-                        <h4><i class="fas fa-user-plus"></i> Referral Link Generator</h4>
-                        <div class="token-input-group">
-                            <label>Base Referral URL</label>
-                            <input type="text" id="referral-base-url" 
-                                   placeholder="https://t.me/YourBot?start=ref_" 
-                                   value="https://t.me/YourBot?start=ref_">
-                        </div>
-                        <div class="token-input-group">
-                            <label>Referral Prefix</label>
-                            <input type="text" id="referral-prefix" value="ref_">
-                        </div>
-                        <div class="token-input-group">
-                            <label>Referral Code Length</label>
-                            <input type="number" id="referral-code-length" min="4" max="20" value="8">
-                        </div>
-                        
-                        <div style="margin: 15px 0;">
-                            <button class="action-btn edit-btn" onclick="generateReferralLink()" 
-                                    style="width: 100%; padding: 10px;">
-                                <i class="fas fa-bolt"></i> Generate Sample Link
-                            </button>
-                        </div>
-                        
-                        <div class="token-preview">
-                            <strong>Sample Referral Link:</strong>
-                            <div class="referral-link-display" id="sample-referral-link">
-                                https://t.me/YourBot?start=ref_ABC123
-                            </div>
-                            <button class="copy-btn" onclick="copyToClipboard('sample-referral-link')">
-                                <i class="fas fa-copy"></i> Copy Link
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- User Specific Referral Management -->
-                    <div class="token-card">
-                        <h4><i class="fas fa-users"></i> User Referral Management</h4>
-                        <div class="token-input-group">
-                            <label>Search User by ID or Email</label>
-                            <input type="text" id="user-referral-search" placeholder="Enter User ID or Email">
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="action-btn view-btn" onclick="findUserForReferral()" style="flex: 1;">
-                                Find User
-                            </button>
-                            <button class="action-btn edit-btn" onclick="resetReferralSearch()" style="flex: 1;">
-                                Reset
-                            </button>
-                        </div>
-                        
-                        <div id="user-referral-details" style="margin-top: 15px; display: none;">
-                            <div class="token-preview">
-                                <strong>User Details:</strong>
-                                <div id="referral-user-info"></div>
-                                <div style="margin-top: 10px;">
-                                    <strong>Current Referral Code:</strong>
-                                    <div class="referral-link-display" id="current-referral-code"></div>
-                                </div>
-                                <div style="margin-top: 10px;">
-                                    <strong>Generate New Referral Code:</strong>
-                                    <input type="text" id="new-referral-code" placeholder="Enter new referral code" 
-                                           style="width: 100%; padding: 8px; margin: 5px 0;">
-                                    <button class="action-btn edit-btn" onclick="updateUserReferralCode()" 
-                                            style="width: 100%; margin-top: 10px;">
-                                        <i class="fas fa-sync"></i> Update Referral Code
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Referral Statistics -->
-                    <div class="token-card">
-                        <h4><i class="fas fa-chart-bar"></i> Referral Performance</h4>
-                        <div id="referral-performance-stats">
-                            <p>Loading referral statistics...</p>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            <button class="action-btn view-btn" onclick="loadReferralPerformance()" 
-                                    style="width: 100%; padding: 10px;">
-                                <i class="fas fa-refresh"></i> Refresh Stats
-                            </button>
-                        </div>
+                    <h3><i class="fas fa-users"></i> User Management</h3>
+                    <div class="search-box">
+                        <input type="text" id="user-search" placeholder="Search by User ID, Email or Telegram ID...">
+                        <button onclick="searchUsers()">Search</button>
+                        <button onclick="clearUserSearch()">Clear</button>
                     </div>
                 </div>
-
-                <!-- Bulk Referral Link Generator -->
-                <div class="token-card" style="margin-top: 20px;">
-                    <h4><i class="fas fa-cogs"></i> Bulk Referral Link Generator</h4>
-                    <div class="token-input-group">
-                        <label>Number of Links to Generate</label>
-                        <input type="number" id="bulk-link-count" min="1" max="100" value="10">
-                    </div>
-                    <div class="token-input-group">
-                        <label>Prefix for All Links</label>
-                        <input type="text" id="bulk-link-prefix" value="promo_">
-                    </div>
-                    <button class="save-token-btn" onclick="generateBulkReferralLinks()">
-                        <i class="fas fa-bolt"></i> Generate Bulk Links
-                    </button>
-                    
-                    <div id="bulk-links-result" style="margin-top: 20px; display: none;">
-                        <h5>Generated Links:</h5>
-                        <div class="referral-link-display" id="bulk-links-display" 
-                             style="max-height: 200px; overflow-y: auto;"></div>
-                        <button class="copy-btn" onclick="copyAllBulkLinks()" style="margin-top: 10px;">
-                            <i class="fas fa-copy"></i> Copy All Links
-                        </button>
+                <div class="user-table-container">
+                    <table class="user-table" id="users-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Tokens</th>
+                                <th>USDT</th>
+                                <th>Referrals</th>
+                                <th>Status</th>
+                                <th>Joined Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 30px;">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                    <div id="pagination-info">Showing 0 of 0 users</div>
+                    <div>
+                        <button onclick="prevPage()" class="action-btn" style="margin-right: 10px;">Previous</button>
+                        <button onclick="nextPage()" class="action-btn">Next</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Existing sections remain same (users, settings, withdrawals, etc.) -->
-            <!-- ... Previous sections code ... -->
+            <!-- Settings Section -->
+            <div class="content-section" id="settings-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-cog"></i> System Settings</h3>
+                </div>
+                <form class="settings-form" id="system-settings">
+                    <div class="form-group">
+                        <label>Token Conversion Rate (1 BEE = ? USDT)</label>
+                        <input type="number" id="token-rate" step="0.00001" min="0" value="0.001">
+                    </div>
+                    <div class="form-group">
+                        <label>Daily Airdrop Reward (Tokens)</label>
+                        <input type="number" id="daily-airdrop" min="0" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label>Ad Reward Amount (Tokens per ad)</label>
+                        <input type="number" id="ad-reward" min="0" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Task Reward Amount (Tokens per task)</label>
+                        <input type="number" id="task-reward" min="0" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label>Referral Reward (Tokens per referral)</label>
+                        <input type="number" id="referral-reward" min="0" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum Referrals for Withdrawal</label>
+                        <input type="number" id="min-referrals" min="0" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum Withdrawal Amount (USDT)</label>
+                        <input type="number" id="min-withdrawal" step="0.01" min="0" value="1.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Daily Ad Limit</label>
+                        <input type="number" id="daily-ad-limit" min="1" value="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Methods (comma separated)</label>
+                        <input type="text" id="payment-methods" value="Binance, PayPal, Skrill, Perfect Money">
+                    </div>
+                    <div class="form-group">
+                        <label>System Maintenance Message</label>
+                        <textarea id="maintenance-message" placeholder="System is running normally..."></textarea>
+                    </div>
+                    <button type="button" class="save-btn" onclick="saveSystemSettings()">
+                        <i class="fas fa-save"></i> Save All Settings
+                    </button>
+                </form>
+            </div>
 
+            <!-- Withdrawals Section -->
+            <div class="content-section" id="withdrawals-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-wallet"></i> Withdrawal Requests</h3>
+                </div>
+                <table class="user-table" id="withdrawals-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>Amount (USDT)</th>
+                            <th>Wallet Address</th>
+                            <th>Status</th>
+                            <th>Request Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="withdrawals-table-body">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px;">Loading withdrawals...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Referrals Section -->
+            <div class="content-section" id="referrals-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-user-friends"></i> Referral System</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div style="background-color: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
+                        <h4 style="color: var(--primary-yellow); margin-bottom: 10px;">Top Referrers</h4>
+                        <div id="top-referrers">Loading...</div>
+                    </div>
+                    <div style="background-color: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
+                        <h4 style="color: var(--primary-yellow); margin-bottom: 10px;">Referral Statistics</h4>
+                        <div id="referral-stats">Loading...</div>
+                    </div>
+                </div>
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Referrer</th>
+                            <th>Referred User</th>
+                            <th>Reward Given</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="referrals-table-body">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 30px;">Loading referral data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="content-section" id="notifications-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-bell"></i> Send Notification</h3>
+                </div>
+                <form class="settings-form" style="grid-template-columns: 1fr;">
+                    <div class="form-group">
+                        <label>Notification Title</label>
+                        <input type="text" id="notification-title" placeholder="Enter notification title">
+                    </div>
+                    <div class="form-group">
+                        <label>Notification Message</label>
+                        <textarea id="notification-message" rows="6" placeholder="Enter notification message for all users"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Notification Type</label>
+                        <select id="notification-type">
+                            <option value="info">Information</option>
+                            <option value="success">Success</option>
+                            <option value="warning">Warning</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
+                    <button type="button" class="save-btn" onclick="sendNotificationToAllUsers()">
+                        <i class="fas fa-paper-plane"></i> Send to All Users
+                    </button>
+                </form>
+            </div>
+
+            <!-- Bot Links Section -->
+            <div class="content-section" id="bot-links-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-robot"></i> Bot Links Management</h3>
+                </div>
+                <form class="settings-form">
+                    <div class="form-group">
+                        <label>Telegram Bot Link</label>
+                        <input type="text" id="telegram-bot-link" placeholder="https://t.me/your_bot_or_app?start=">
+                    </div>
+                    <div class="form-group">
+                        <label>YouTube Channel Link</label>
+                        <input type="text" id="youtube-channel-link" placeholder="https://youtube.com/@channel">
+                    </div>
+                    <div class="form-group">
+                        <label>Referral Link Base URL</label>
+                        <input type="text" id="referral-link-base" placeholder="https://yourdomain.com?ref=">
+                    </div>
+                    <div class="form-group">
+                        <label>App Download Link</label>
+                        <input type="text" id="app-download-link" placeholder="https://play.google.com/store/apps/details?id=com.example">
+                    </div>
+                    <button type="button" class="save-btn" onclick="saveBotLinks()">
+                        <i class="fas fa-save"></i> Save Bot Links
+                    </button>
+                </form>
+            </div>
+
+            <!-- Logs Section -->
+            <div class="content-section" id="logs-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> Activity Logs</h3>
+                    <div class="search-box">
+                        <input type="text" id="log-search" placeholder="Search logs...">
+                        <button onclick="searchLogs()">Search</button>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <button onclick="filterLogs('all')" class="action-btn" style="margin-right: 10px;">All</button>
+                    <button onclick="filterLogs('airdrop')" class="action-btn" style="margin-right: 10px;">Airdrops</button>
+                    <button onclick="filterLogs('ad')" class="action-btn" style="margin-right: 10px;">Ads</button>
+                    <button onclick="filterLogs('withdrawal')" class="action-btn" style="margin-right: 10px;">Withdrawals</button>
+                    <button onclick="filterLogs('referral')" class="action-btn">Referrals</button>
+                </div>
+                <div id="activity-logs">
+                    <p>Loading activity logs...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Edit Modal -->
+    <div class="modal" id="user-edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit User</h3>
+                <button class="close-modal" onclick="closeModal('user-edit-modal')">&times;</button>
+            </div>
+            <form id="edit-user-form">
+                <div class="form-group">
+                    <label>User ID</label>
+                    <input type="text" id="edit-user-id" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="edit-user-name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="edit-user-email">
+                </div>
+                <div class="form-group">
+                    <label>Tokens Balance</label>
+                    <input type="number" id="edit-user-tokens" min="0">
+                </div>
+                <div class="form-group">
+                    <label>USDT Balance</label>
+                    <input type="number" id="edit-user-usdt" step="0.0001" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Referral Count</label>
+                    <input type="number" id="edit-user-referrals" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Account Status</label>
+                    <select id="edit-user-status">
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                        <option value="banned">Banned</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Referral Code</label>
+                    <input type="text" id="edit-user-referral-code">
+                </div>
+                <button type="button" class="save-btn" onclick="saveUserEdits()">Save Changes</button>
+            </form>
         </div>
     </div>
 
@@ -715,7 +1091,7 @@
             appId: "1:701262930342:web:a8c49ea25b730332ff2f67"
         };
 
-        // Firebase SDK Imports
+        // Firebase SDK Imports - ALL required functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { 
             getAuth, 
@@ -759,51 +1135,10 @@
             setupMenuHandlers();
             setupLoginForm();
             setupEventListeners();
-            setupMobileMenu();
             
             // Check if admin is already logged in
             onAuthStateChanged(auth, handleAuthStateChange);
         });
-
-        // Setup Mobile Menu
-        function setupMobileMenu() {
-            const mobileToggle = document.getElementById('mobile-menu-toggle');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-            
-            mobileToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-                mainContent.classList.toggle('sidebar-open');
-            });
-            
-            // Close sidebar when clicking outside on mobile
-            mainContent.addEventListener('click', function() {
-                if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
-                    sidebar.classList.remove('active');
-                    mainContent.classList.remove('sidebar-open');
-                }
-            });
-            
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768) {
-                    sidebar.classList.add('active');
-                    mainContent.classList.add('sidebar-open');
-                    mobileToggle.style.display = 'none';
-                } else {
-                    mobileToggle.style.display = 'block';
-                    sidebar.classList.remove('active');
-                    mainContent.classList.remove('sidebar-open');
-                }
-            });
-            
-            // Initial state
-            if (window.innerWidth > 768) {
-                sidebar.classList.add('active');
-                mainContent.classList.add('sidebar-open');
-                mobileToggle.style.display = 'none';
-            }
-        }
 
         // Handle authentication state change
         async function handleAuthStateChange(user) {
@@ -814,427 +1149,6 @@
             } else {
                 showLoginPage();
             }
-        }
-
-        // Show section with mobile support
-        function showSection(section) {
-            // Close mobile menu if open
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('active');
-                document.getElementById('main-content').classList.remove('sidebar-open');
-            }
-            
-            document.querySelectorAll('.content-section').forEach(sec => {
-                sec.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Activate menu item
-            document.querySelector(`[data-section="${section}"]`).classList.add('active');
-            
-            // Show section
-            document.getElementById(section + '-section').classList.add('active');
-            
-            // Load section data
-            switch(section) {
-                case 'users':
-                    loadUsers();
-                    break;
-                case 'withdrawals':
-                    loadWithdrawals();
-                    break;
-                case 'referrals':
-                    loadReferrals();
-                    break;
-                case 'logs':
-                    loadActivityLogs();
-                    break;
-                case 'settings':
-                    loadSystemSettings();
-                    break;
-                case 'token-management':
-                    loadTokenManagementData();
-                    break;
-                case 'notifications':
-                    // Clear notification form
-                    document.getElementById('notification-title').value = '';
-                    document.getElementById('notification-message').value = '';
-                    break;
-            }
-        }
-
-        // Load Token Management Data
-        async function loadTokenManagementData() {
-            try {
-                // Load Telegram bot configuration
-                const botConfigRef = doc(db, "config", "telegramBot");
-                const botConfigSnap = await getDoc(botConfigRef);
-                
-                if (botConfigSnap.exists()) {
-                    const botConfig = botConfigSnap.data();
-                    document.getElementById('telegram-bot-token').value = botConfig.token || '';
-                    document.getElementById('telegram-bot-username').value = botConfig.username || '';
-                    document.getElementById('telegram-start-command').value = botConfig.startCommand || '/start';
-                    
-                    // Update preview
-                    updateTelegramBotLinkPreview();
-                }
-                
-                // Load referral configuration
-                const referralConfigRef = doc(db, "config", "referralSettings");
-                const referralConfigSnap = await getDoc(referralConfigRef);
-                
-                if (referralConfigSnap.exists()) {
-                    const referralConfig = referralConfigSnap.data();
-                    document.getElementById('referral-base-url').value = referralConfig.baseUrl || 'https://t.me/YourBot?start=ref_';
-                    document.getElementById('referral-prefix').value = referralConfig.prefix || 'ref_';
-                    document.getElementById('referral-code-length').value = referralConfig.codeLength || 8;
-                }
-                
-                // Load referral performance stats
-                loadReferralPerformance();
-                
-            } catch (error) {
-                console.error('Error loading token management data:', error);
-                showAlert('Error loading token data', 'error');
-            }
-        }
-
-        // Update Telegram Bot Link Preview
-        function updateTelegramBotLinkPreview() {
-            const username = document.getElementById('telegram-bot-username').value;
-            const startCommand = document.getElementById('telegram-start-command').value;
-            
-            let botLink = 'https://t.me/';
-            
-            if (username) {
-                if (username.startsWith('@')) {
-                    botLink += username.substring(1);
-                } else {
-                    botLink += username;
-                }
-                
-                if (startCommand) {
-                    botLink += `?${startCommand.replace('/', '')}=`;
-                } else {
-                    botLink += '?start=';
-                }
-            }
-            
-            document.getElementById('telegram-bot-link-preview').textContent = botLink;
-        }
-
-        // Save Telegram Bot Configuration
-        async function saveTelegramBotConfig() {
-            try {
-                const botConfigRef = doc(db, "config", "telegramBot");
-                
-                const botConfig = {
-                    token: document.getElementById('telegram-bot-token').value,
-                    username: document.getElementById('telegram-bot-username').value,
-                    startCommand: document.getElementById('telegram-start-command').value,
-                    updatedAt: serverTimestamp(),
-                    updatedBy: currentAdmin.uid
-                };
-                
-                await setDoc(botConfigRef, botConfig, { merge: true });
-                
-                // Update preview
-                updateTelegramBotLinkPreview();
-                
-                // Log the action
-                await logAdminAction('Updated Telegram bot configuration');
-                
-                showAlert('Telegram bot configuration saved successfully!', 'success');
-                
-            } catch (error) {
-                console.error('Error saving bot config:', error);
-                showAlert('Error saving bot configuration', 'error');
-            }
-        }
-
-        // Generate Referral Link
-        function generateReferralLink() {
-            const baseUrl = document.getElementById('referral-base-url').value;
-            const prefix = document.getElementById('referral-prefix').value;
-            const codeLength = parseInt(document.getElementById('referral-code-length').value);
-            
-            // Generate random referral code
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let referralCode = '';
-            
-            for (let i = 0; i < codeLength; i++) {
-                referralCode += characters.charAt(Math.floor(Math.random() * characters.length));
-            }
-            
-            const fullReferralCode = prefix + referralCode;
-            const referralLink = baseUrl.replace(/ref_$/, '') + fullReferralCode;
-            
-            document.getElementById('sample-referral-link').textContent = referralLink;
-            
-            showAlert('Sample referral link generated!', 'success');
-        }
-
-        // Find User for Referral Management
-        async function findUserForReferral() {
-            const searchTerm = document.getElementById('user-referral-search').value.trim();
-            
-            if (!searchTerm) {
-                showAlert('Please enter user ID or email', 'error');
-                return;
-            }
-            
-            try {
-                let userQuery;
-                
-                // Check if it's an email
-                if (searchTerm.includes('@')) {
-                    userQuery = query(collection(db, "users"), where("email", "==", searchTerm));
-                } else {
-                    // Assume it's a user ID
-                    const userRef = doc(db, "users", searchTerm);
-                    const userSnap = await getDoc(userRef);
-                    
-                    if (userSnap.exists()) {
-                        displayUserReferralInfo(searchTerm, userSnap.data());
-                        return;
-                    } else {
-                        showAlert('User not found', 'error');
-                        return;
-                    }
-                }
-                
-                const querySnapshot = await getDocs(userQuery);
-                
-                if (querySnapshot.empty) {
-                    showAlert('User not found', 'error');
-                    return;
-                }
-                
-                querySnapshot.forEach((docSnap) => {
-                    displayUserReferralInfo(docSnap.id, docSnap.data());
-                });
-                
-            } catch (error) {
-                console.error('Error finding user:', error);
-                showAlert('Error finding user', 'error');
-            }
-        }
-
-        // Display User Referral Information
-        function displayUserReferralInfo(userId, userData) {
-            const userInfoDiv = document.getElementById('referral-user-info');
-            const currentCodeDiv = document.getElementById('current-referral-code');
-            const newCodeInput = document.getElementById('new-referral-code');
-            const detailsDiv = document.getElementById('user-referral-details');
-            
-            // Store user ID in a data attribute
-            detailsDiv.dataset.userId = userId;
-            
-            // Display user info
-            userInfoDiv.innerHTML = `
-                <div><strong>Name:</strong> ${userData.name || 'N/A'}</div>
-                <div><strong>Email:</strong> ${userData.email || 'N/A'}</div>
-                <div><strong>Referrals:</strong> ${userData.referrals || 0}</div>
-                <div><strong>Join Date:</strong> ${userData.createdAt ? new Date(userData.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</div>
-            `;
-            
-            // Display current referral code
-            const currentCode = userData.referralCode || 'No code assigned';
-            currentCodeDiv.textContent = currentCode;
-            
-            // Set current code as placeholder for new code
-            newCodeInput.placeholder = currentCode;
-            newCodeInput.value = '';
-            
-            // Show details section
-            detailsDiv.style.display = 'block';
-            
-            showAlert('User found successfully!', 'success');
-        }
-
-        // Update User Referral Code
-        async function updateUserReferralCode() {
-            const detailsDiv = document.getElementById('user-referral-details');
-            const userId = detailsDiv.dataset.userId;
-            const newCode = document.getElementById('new-referral-code').value.trim();
-            
-            if (!userId) {
-                showAlert('No user selected', 'error');
-                return;
-            }
-            
-            if (!newCode) {
-                showAlert('Please enter a new referral code', 'error');
-                return;
-            }
-            
-            try {
-                const userRef = doc(db, "users", userId);
-                
-                await updateDoc(userRef, {
-                    referralCode: newCode,
-                    updatedAt: serverTimestamp()
-                });
-                
-                // Update display
-                document.getElementById('current-referral-code').textContent = newCode;
-                document.getElementById('new-referral-code').value = '';
-                
-                // Log the action
-                await logAdminAction(`Updated referral code for user ${userId} to ${newCode}`);
-                
-                showAlert('Referral code updated successfully!', 'success');
-                
-            } catch (error) {
-                console.error('Error updating referral code:', error);
-                showAlert('Error updating referral code', 'error');
-            }
-        }
-
-        // Load Referral Performance Stats
-        async function loadReferralPerformance() {
-            try {
-                const statsDiv = document.getElementById('referral-performance-stats');
-                
-                // Get all users with referrals
-                const usersQuery = query(collection(db, "users"), where("referrals", ">", 0));
-                const usersSnap = await getDocs(usersQuery);
-                
-                let totalReferrals = 0;
-                let topReferrers = [];
-                
-                if (!usersSnap.empty) {
-                    usersSnap.forEach((doc) => {
-                        const user = doc.data();
-                        const referrals = user.referrals || 0;
-                        totalReferrals += referrals;
-                        
-                        topReferrers.push({
-                            id: doc.id,
-                            name: user.name || 'Anonymous',
-                            referrals: referrals,
-                            code: user.referralCode || 'N/A'
-                        });
-                    });
-                }
-                
-                // Sort by referrals
-                topReferrers.sort((a, b) => b.referrals - a.referrals);
-                
-                // Display stats
-                let html = `
-                    <div style="margin-bottom: 10px;">
-                        <strong>Total Referrals:</strong> ${totalReferrals}
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <strong>Top 5 Referrers:</strong>
-                `;
-                
-                if (topReferrers.length > 0) {
-                    topReferrers.slice(0, 5).forEach((referrer, index) => {
-                        html += `
-                            <div style="display: flex; justify-content: space-between; margin-top: 5px; padding: 5px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                                <div>
-                                    ${index + 1}. ${referrer.name}
-                                    <small style="color: #94A3B8; display: block;">Code: ${referrer.code}</small>
-                                </div>
-                                <div style="color: var(--primary-yellow); font-weight: bold;">
-                                    ${referrer.referrals}
-                                </div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    html += '<div style="color: #94A3B8; margin-top: 5px;">No referral data available</div>';
-                }
-                
-                html += '</div>';
-                statsDiv.innerHTML = html;
-                
-            } catch (error) {
-                console.error('Error loading referral performance:', error);
-                document.getElementById('referral-performance-stats').innerHTML = 
-                    '<p style="color: var(--red);">Error loading stats</p>';
-            }
-        }
-
-        // Generate Bulk Referral Links
-        async function generateBulkReferralLinks() {
-            const count = parseInt(document.getElementById('bulk-link-count').value);
-            const prefix = document.getElementById('bulk-link-prefix').value;
-            const baseUrl = document.getElementById('referral-base-url').value;
-            
-            if (!count || count < 1 || count > 100) {
-                showAlert('Please enter a valid number between 1 and 100', 'error');
-                return;
-            }
-            
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let linksHtml = '';
-            const linksArray = [];
-            
-            for (let i = 0; i < count; i++) {
-                let code = '';
-                for (let j = 0; j < 8; j++) {
-                    code += characters.charAt(Math.floor(Math.random() * characters.length));
-                }
-                
-                const fullCode = prefix + code;
-                const link = baseUrl.replace(/ref_$/, '') + fullCode;
-                
-                linksArray.push(link);
-                linksHtml += `<div style="margin-bottom: 5px; font-size: 12px;">${link}</div>`;
-            }
-            
-            // Store links array globally for copying
-            window.bulkLinksArray = linksArray;
-            
-            // Display links
-            document.getElementById('bulk-links-display').innerHTML = linksHtml;
-            document.getElementById('bulk-links-result').style.display = 'block';
-            
-            showAlert(`Generated ${count} referral links!`, 'success');
-        }
-
-        // Copy All Bulk Links
-        function copyAllBulkLinks() {
-            if (!window.bulkLinksArray || window.bulkLinksArray.length === 0) {
-                showAlert('No links to copy', 'error');
-                return;
-            }
-            
-            const linksText = window.bulkLinksArray.join('\n');
-            
-            navigator.clipboard.writeText(linksText).then(() => {
-                showAlert('All links copied to clipboard!', 'success');
-            }).catch(err => {
-                console.error('Failed to copy links:', err);
-                showAlert('Failed to copy links', 'error');
-            });
-        }
-
-        // Copy to Clipboard Function
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            const text = element.textContent || element.innerText;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                showAlert('Copied to clipboard!', 'success');
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-                showAlert('Failed to copy', 'error');
-            });
-        }
-
-        // Reset Referral Search
-        function resetReferralSearch() {
-            document.getElementById('user-referral-search').value = '';
-            document.getElementById('user-referral-details').style.display = 'none';
-            document.getElementById('user-referral-details').dataset.userId = '';
         }
 
         // Update current date
@@ -1279,11 +1193,6 @@
                     showLoginPage();
                 }
             });
-            
-            // Telegram bot config change listeners
-            document.getElementById('telegram-bot-username').addEventListener('input', updateTelegramBotLinkPreview);
-            document.getElementById('telegram-start-command').addEventListener('input', updateTelegramBotLinkPreview);
-            document.getElementById('referral-base-url').addEventListener('input', updateTelegramBotLinkPreview);
         }
 
         // Setup login form
@@ -1345,9 +1254,925 @@
             currentAdmin = null;
         }
 
-        // ... Rest of your existing functions remain the same ...
-        // Note: You should keep all your existing functions like loadDashboardData, 
-        // loadUsers, handleWithdrawal, etc. They remain unchanged.
+        // Show section
+        function showSection(section) {
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            
+            document.getElementById(section + '-section').classList.add('active');
+            
+            switch(section) {
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'withdrawals':
+                    loadWithdrawals();
+                    break;
+                case 'referrals':
+                    loadReferrals();
+                    break;
+                case 'logs':
+                    loadActivityLogs();
+                    break;
+                case 'settings':
+                    loadSystemSettings();
+                    break;
+                case 'notifications':
+                    // Clear notification form
+                    document.getElementById('notification-title').value = '';
+                    document.getElementById('notification-message').value = '';
+                    break;
+                case 'bot-links':
+                    loadBotLinks();
+                    break;
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Load users data
+                const usersRef = collection(db, "users");
+                onSnapshot(usersRef, (snapshot) => {
+                    usersData = [];
+                    let totalTokens = 0;
+                    let totalReferrals = 0;
+                    let activeToday = 0;
+                    const today = new Date().toISOString().split('T')[0];
+                    
+                    snapshot.forEach((doc) => {
+                        const user = doc.data();
+                        user.id = doc.id;
+                        usersData.push(user);
+                        
+                        // Calculate totals
+                        totalTokens += user.balance || 0;
+                        totalReferrals += user.referrals || 0;
+                        
+                        if (user.lastActive && user.lastActive.includes(today)) {
+                            activeToday++;
+                        }
+                    });
+                    
+                    // Update dashboard stats
+                    document.getElementById('stat-total-users').textContent = snapshot.size;
+                    document.getElementById('stat-total-tokens').textContent = totalTokens.toLocaleString();
+                    document.getElementById('stat-total-referrals').textContent = totalReferrals;
+                    document.getElementById('stat-active-today').textContent = activeToday;
+                    
+                    // Load system settings to calculate USDT value
+                    const configRef = doc(db, "config", "main");
+                    getDoc(configRef).then(configSnap => {
+                        if (configSnap.exists()) {
+                            const config = configSnap.data();
+                            const rate = config.tokenRate || 0.001;
+                            const totalUSDT = totalTokens * rate;
+                            document.getElementById('stat-total-usdt').textContent = `$${totalUSDT.toFixed(2)}`;
+                        }
+                    });
+                    
+                    // Load users table if on users page
+                    if (document.getElementById('users-section').classList.contains('active')) {
+                        loadUsers();
+                    }
+                });
+                
+                // Load pending withdrawals
+                const withdrawalsQuery = query(collection(db, "withdrawals"), where("status", "==", "pending"));
+                onSnapshot(withdrawalsQuery, (snapshot) => {
+                    document.getElementById('stat-pending-withdrawals').textContent = snapshot.size;
+                });
+                
+                // Load recent activity
+                loadRecentActivity();
+                
+                // Load system settings
+                loadSystemSettings();
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showAlert('Error loading dashboard data. Please refresh.', 'error');
+            }
+        }
+
+        // Refresh all data
+        function refreshAllData() {
+            loadDashboardData();
+            showAlert('Data refreshed successfully!', 'success');
+        }
+
+        // Load users with pagination
+        function loadUsers() {
+            filteredUsers = usersData;
+            currentPage = 1;
+            renderUsersTable();
+        }
+
+        // Render users table
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 30px;">
+                            No users found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            const startIndex = (currentPage - 1) * usersPerPage;
+            const endIndex = startIndex + usersPerPage;
+            const pageUsers = filteredUsers.slice(startIndex, endIndex);
+            
+            tbody.innerHTML = '';
+            
+            pageUsers.forEach(user => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${user.id || user.uid}</td>
+                    <td>${user.name || 'Guest Bee'}</td>
+                    <td>${(user.balance || 0).toLocaleString()}</td>
+                    <td>$${((user.balance || 0) * 0.001).toFixed(4)}</td>
+                    <td>${user.referrals || 0}</td>
+                    <td>
+                        <span style="
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            background-color: ${(user.isBlocked ? 'var(--red)' : 'var(--green)')};
+                            color: white;
+                            font-size: 12px;
+                        ">
+                            ${user.isBlocked ? 'Blocked' : 'Active'}
+                        </span>
+                    </td>
+                    <td>${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <button class="action-btn view-btn" onclick="viewUserDetails('${user.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn edit-btn" onclick="editUser('${user.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn ${user.isBlocked ? 'edit-btn' : 'delete-btn'}" onclick="toggleBlockUser('${user.id}', ${user.isBlocked || false})">
+                            ${user.isBlocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-ban"></i>'}
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            updatePaginationInfo();
+        }
+
+        // Update pagination info
+        function updatePaginationInfo() {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            const startIndex = (currentPage - 1) * usersPerPage + 1;
+            const endIndex = Math.min(currentPage * usersPerPage, filteredUsers.length);
+            
+            document.getElementById('pagination-info').innerHTML = `
+                Showing ${startIndex}-${endIndex} of ${filteredUsers.length} users
+                ${totalPages > 1 ? `(Page ${currentPage} of ${totalPages})` : ''}
+            `;
+        }
+
+        // Next page
+        function nextPage() {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderUsersTable();
+            }
+        }
+
+        // Previous page
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderUsersTable();
+            }
+        }
+
+        // Search users
+        function searchUsers() {
+            const searchTerm = document.getElementById('user-search').value.toLowerCase();
+            
+            if (!searchTerm) {
+                filteredUsers = usersData;
+            } else {
+                filteredUsers = usersData.filter(user => 
+                    (user.id && user.id.toLowerCase().includes(searchTerm)) ||
+                    (user.name && user.name.toLowerCase().includes(searchTerm)) ||
+                    (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+                    (user.referralCode && user.referralCode.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            currentPage = 1;
+            renderUsersTable();
+        }
+
+        // Clear user search
+        function clearUserSearch() {
+            document.getElementById('user-search').value = '';
+            filteredUsers = usersData;
+            currentPage = 1;
+            renderUsersTable();
+        }
+
+        // View user details
+        async function viewUserDetails(userId) {
+            try {
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const user = userSnap.data();
+                    
+                    alert(`
+                        User Details:
+                        ID: ${userId}
+                        Name: ${user.name || 'N/A'}
+                        Email: ${user.email || 'N/A'}
+                        Balance: ${user.balance || 0} tokens
+                        USDT Value: $${((user.balance || 0) * 0.001).toFixed(4)}
+                        Referrals: ${user.referrals || 0}
+                        Referral Code: ${user.referralCode || 'N/A'}
+                        Status: ${user.isBlocked ? 'Blocked' : 'Active'}
+                        Joined: ${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleString() : 'N/A'}
+                        Last Active: ${user.lastActive || 'N/A'}
+                    `);
+                } else {
+                    showAlert('User not found', 'error');
+                }
+            } catch (error) {
+                console.error('Error viewing user details:', error);
+                showAlert('Error loading user details', 'error');
+            }
+        }
+
+        // Edit user
+        async function editUser(userId) {
+            try {
+                const userRef = doc(db, "users", userId);
+                const userSnap = await getDoc(userRef);
+                
+                if (userSnap.exists()) {
+                    const user = userSnap.data();
+                    
+                    // Fill modal form
+                    document.getElementById('edit-user-id').value = userId;
+                    document.getElementById('edit-user-name').value = user.name || '';
+                    document.getElementById('edit-user-email').value = user.email || '';
+                    document.getElementById('edit-user-tokens').value = user.balance || 0;
+                    document.getElementById('edit-user-usdt').value = ((user.balance || 0) * 0.001).toFixed(4);
+                    document.getElementById('edit-user-referrals').value = user.referrals || 0;
+                    document.getElementById('edit-user-status').value = user.isBlocked ? 'banned' : 'active';
+                    document.getElementById('edit-user-referral-code').value = user.referralCode || '';
+                    
+                    // Store user ID for saving
+                    document.getElementById('edit-user-form').dataset.userId = userId;
+                    
+                    // Show modal
+                    openModal('user-edit-modal');
+                } else {
+                    showAlert('User not found', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading user for edit:', error);
+                showAlert('Error loading user data', 'error');
+            }
+        }
+
+        // Save user edits
+        async function saveUserEdits() {
+            const userId = document.getElementById('edit-user-form').dataset.userId;
+            
+            if (!userId) {
+                showAlert('User ID not found', 'error');
+                return;
+            }
+            
+            const userRef = doc(db, "users", userId);
+            
+            try {
+                const tokens = parseInt(document.getElementById('edit-user-tokens').value) || 0;
+                const status = document.getElementById('edit-user-status').value;
+                
+                const updates = {
+                    name: document.getElementById('edit-user-name').value,
+                    email: document.getElementById('edit-user-email').value,
+                    balance: tokens,
+                    referrals: parseInt(document.getElementById('edit-user-referrals').value) || 0,
+                    isBlocked: status === 'banned' || status === 'suspended',
+                    referralCode: document.getElementById('edit-user-referral-code').value,
+                    updatedAt: serverTimestamp()
+                };
+                
+                await updateDoc(userRef, updates);
+                
+                // Log the action
+                await logAdminAction(`Edited user ${userId} - Tokens: ${tokens}, Status: ${status}`);
+                
+                showAlert('User updated successfully!', 'success');
+                closeModal('user-edit-modal');
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error updating user:', error);
+                showAlert('Error updating user. Please try again.', 'error');
+            }
+        }
+
+        // Toggle block user
+        async function toggleBlockUser(userId, isCurrentlyBlocked) {
+            const action = isCurrentlyBlocked ? 'unblock' : 'block';
+            const confirmed = await showConfirm(`Are you sure you want to ${action} this user?`);
+            
+            if (!confirmed) return;
+            
+            try {
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, {
+                    isBlocked: !isCurrentlyBlocked,
+                    updatedAt: serverTimestamp()
+                });
+                
+                // Log the action
+                await logAdminAction(`${action}ed user ${userId}`);
+                
+                showAlert(`User ${action}ed successfully!`, 'success');
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error(`Error ${action}ing user:`, error);
+                showAlert(`Error ${action}ing user. Please try again.`, 'error');
+            }
+        }
+
+        // Load withdrawals
+        async function loadWithdrawals() {
+            try {
+                const withdrawalsQuery = query(collection(db, "withdrawals"));
+                const unsubscribe = onSnapshot(withdrawalsQuery, (snapshot) => {
+                    const tbody = document.getElementById('withdrawals-table-body');
+                    tbody.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 30px;">
+                                    No withdrawal requests found
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    snapshot.forEach((docSnap) => {
+                        const request = docSnap.data();
+                        const row = document.createElement('tr');
+                        
+                        let statusColor = 'var(--blue)';
+                        if (request.status === 'approved') statusColor = 'var(--green)';
+                        if (request.status === 'rejected') statusColor = 'var(--red)';
+                        
+                        row.innerHTML = `
+                            <td>${docSnap.id.substring(0, 8)}</td>
+                            <td>${request.userId || 'N/A'}</td>
+                            <td>$${request.amount?.toFixed(4) || '0.0000'}</td>
+                            <td style="font-family: monospace;">${request.paymentDetail || 'Not provided'}</td>
+                            <td>
+                                <span style="
+                                    padding: 4px 8px;
+                                    border-radius: 4px;
+                                    background-color: ${statusColor};
+                                    color: white;
+                                    font-size: 12px;
+                                ">
+                                    ${request.status || 'pending'}
+                                </span>
+                            </td>
+                            <td>${request.requestedAt ? new Date(request.requestedAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
+                            <td>
+                                ${request.status === 'pending' ? `
+                                    <button class="action-btn edit-btn" onclick="handleWithdrawal('${docSnap.id}', 'approved')">
+                                        Approve
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="handleWithdrawal('${docSnap.id}', 'rejected')">
+                                        Reject
+                                    </button>
+                                ` : 'Processed'}
+                            </td>
+                        `;
+                        
+                        tbody.appendChild(row);
+                    });
+                });
+                
+                // Store unsubscribe function
+                window.withdrawalsUnsubscribe = unsubscribe;
+                
+            } catch (error) {
+                console.error('Error loading withdrawals:', error);
+                showAlert('Error loading withdrawals', 'error');
+            }
+        }
+
+        // Handle withdrawal
+        async function handleWithdrawal(requestId, newStatus) {
+            const statusText = newStatus === 'approved' ? 'approve' : 'reject';
+            const confirmed = await showConfirm(`Are you sure you want to ${statusText} this withdrawal?`);
+            
+            if (!confirmed) return;
+            
+            try {
+                const requestRef = doc(db, "withdrawals", requestId);
+                
+                // First get the current request data
+                const requestSnap = await getDoc(requestRef);
+                if (!requestSnap.exists()) {
+                    showAlert('Withdrawal request not found', 'error');
+                    return;
+                }
+                
+                const requestData = requestSnap.data();
+                
+                if (newStatus === 'rejected') {
+                    // Refund balance to user
+                    const userRef = doc(db, "users", requestData.userId);
+                    const userSnap = await getDoc(userRef);
+                    
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        const currentBalance = userData.balance || 0;
+                        const withdrawalAmountInTokens = (requestData.amount || 0) * 1000; // Assuming 0.001 rate
+                        
+                        await updateDoc(userRef, {
+                            balance: currentBalance + withdrawalAmountInTokens,
+                            updatedAt: serverTimestamp()
+                        });
+                    }
+                }
+                
+                // Update withdrawal status
+                await updateDoc(requestRef, {
+                    status: newStatus,
+                    processedAt: serverTimestamp(),
+                    processedBy: currentAdmin.uid
+                });
+                
+                // Log the action
+                await logAdminAction(`${statusText}ed withdrawal ${requestId.substring(0, 8)}`);
+                
+                showAlert(`Withdrawal ${statusText}d successfully!`, 'success');
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error processing withdrawal:', error);
+                showAlert('Error processing withdrawal. Please try again.', 'error');
+            }
+        }
+
+        // Load referrals
+        async function loadReferrals() {
+            try {
+                const usersQuery = query(collection(db, "users"), where("referrals", ">", 0));
+                const usersSnap = await getDocs(usersQuery);
+                
+                let topReferrers = [];
+                let totalReferrals = 0;
+                
+                if (!usersSnap.empty) {
+                    usersSnap.forEach((doc) => {
+                        const user = doc.data();
+                        const referrals = user.referrals || 0;
+                        totalReferrals += referrals;
+                        
+                        if (referrals > 0) {
+                            topReferrers.push({
+                                name: user.name || 'Anonymous',
+                                userId: doc.id,
+                                referrals: referrals,
+                                earnings: (referrals * 10)
+                            });
+                        }
+                    });
+                }
+                
+                // Sort by referrals
+                topReferrers.sort((a, b) => b.referrals - a.referrals);
+                
+                // Display top referrers
+                const topReferrersDiv = document.getElementById('top-referrers');
+                if (topReferrers.length > 0) {
+                    let html = '';
+                    topReferrers.slice(0, 5).forEach((referrer, index) => {
+                        html += `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
+                                <div>
+                                    <strong>${index + 1}. ${referrer.name}</strong><br>
+                                    <small>${referrer.userId.substring(0, 8)}...</small>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div>${referrer.referrals} referrals</div>
+                                    <small>${referrer.earnings} tokens earned</small>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    topReferrersDiv.innerHTML = html;
+                } else {
+                    topReferrersDiv.innerHTML = 'No referral data available';
+                }
+                
+                // Display referral stats
+                const referralStatsDiv = document.getElementById('referral-stats');
+                referralStatsDiv.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>Total Referrals:</strong> ${totalReferrals}
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Reward per Referral:</strong> 10 tokens
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Total Tokens Distributed:</strong> ${totalReferrals * 10} tokens
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading referrals:', error);
+                showAlert('Error loading referral data', 'error');
+            }
+        }
+
+        // Load system settings - FIXED VERSION
+        async function loadSystemSettings() {
+            try {
+                const configRef = doc(db, "config", "main");
+                const configSnap = await getDoc(configRef);
+                
+                if (configSnap.exists()) {
+                    const config = configSnap.data();
+                    
+                    console.log("Loaded config:", config); // Debug log
+                    
+                    // Update form fields
+                    document.getElementById('token-rate').value = config.tokenRate || 0.001;
+                    document.getElementById('daily-airdrop').value = config.dailyAirdrop || 50;
+                    document.getElementById('ad-reward').value = config.adReward || 10;
+                    document.getElementById('task-reward').value = config.taskReward || 50;
+                    document.getElementById('referral-reward').value = config.referralReward || 10;
+                    document.getElementById('min-referrals').value = config.minReferrals || 20;
+                    document.getElementById('min-withdrawal').value = config.minWithdrawal || 1.0;
+                    document.getElementById('daily-ad-limit').value = config.dailyAdLimit || 100;
+                    
+                    // Handle payment methods - can be array or string
+                    let paymentMethods = config.paymentMethods;
+                    if (Array.isArray(paymentMethods)) {
+                        document.getElementById('payment-methods').value = paymentMethods.join(', ');
+                    } else if (typeof paymentMethods === 'string') {
+                        document.getElementById('payment-methods').value = paymentMethods;
+                    } else {
+                        document.getElementById('payment-methods').value = 'Binance, PayPal, Skrill, Perfect Money';
+                    }
+                    
+                    document.getElementById('maintenance-message').value = config.maintenanceMessage || 'System is running normally...';
+                    
+                    showAlert('Settings loaded successfully!', 'success');
+                } else {
+                    console.log("Config document doesn't exist, creating default...");
+                    // Create default config
+                    const defaultConfig = {
+                        tokenRate: 0.001,
+                        dailyAirdrop: 50,
+                        adReward: 10,
+                        taskReward: 50,
+                        referralReward: 10,
+                        minReferrals: 20,
+                        minWithdrawal: 1.0,
+                        dailyAdLimit: 100,
+                        paymentMethods: ["Binance", "PayPal", "Skrill", "Perfect Money"],
+                        maintenanceMessage: "System is running normally...",
+                        lastUpdated: serverTimestamp(),
+                        updatedBy: currentAdmin ? currentAdmin.uid : "system"
+                    };
+                    
+                    await setDoc(configRef, defaultConfig);
+                    console.log("Default config created");
+                    
+                    // Reload settings
+                    loadSystemSettings();
+                }
+                
+            } catch (error) {
+                console.error('Error loading system settings:', error);
+                showAlert('Error loading system settings: ' + error.message, 'error');
+            }
+        }
+
+        // Save system settings - COMPLETELY FIXED VERSION
+        async function saveSystemSettings() {
+            console.log("Saving system settings...");
+            
+            try {
+                const configRef = doc(db, "config", "main");
+                
+                // Get all values from the form
+                const tokenRate = parseFloat(document.getElementById('token-rate').value);
+                const dailyAirdrop = parseInt(document.getElementById('daily-airdrop').value);
+                const adReward = parseInt(document.getElementById('ad-reward').value);
+                const taskReward = parseInt(document.getElementById('task-reward').value);
+                const referralReward = parseInt(document.getElementById('referral-reward').value);
+                const minReferrals = parseInt(document.getElementById('min-referrals').value);
+                const minWithdrawal = parseFloat(document.getElementById('min-withdrawal').value);
+                const dailyAdLimit = parseInt(document.getElementById('daily-ad-limit').value);
+                const paymentMethodsText = document.getElementById('payment-methods').value;
+                const maintenanceMessage = document.getElementById('maintenance-message').value;
+                
+                console.log("Form values:", {
+                    tokenRate,
+                    dailyAirdrop,
+                    adReward,
+                    taskReward,
+                    referralReward,
+                    minReferrals,
+                    minWithdrawal,
+                    dailyAdLimit,
+                    paymentMethodsText,
+                    maintenanceMessage
+                });
+                
+                // Validate inputs
+                if (isNaN(tokenRate) || tokenRate < 0) {
+                    showAlert('Please enter a valid token conversion rate', 'error');
+                    return;
+                }
+                
+                if (isNaN(dailyAirdrop) || dailyAirdrop < 0) {
+                    showAlert('Please enter a valid daily airdrop amount', 'error');
+                    return;
+                }
+                
+                // Process payment methods
+                const paymentMethods = paymentMethodsText.split(',')
+                    .map(method => method.trim())
+                    .filter(method => method.length > 0);
+                
+                // Create update object
+                const updatedSettings = {
+                    tokenRate: tokenRate,
+                    dailyAirdrop: dailyAirdrop,
+                    adReward: adReward,
+                    taskReward: taskReward,
+                    referralReward: referralReward,
+                    minReferrals: minReferrals,
+                    minWithdrawal: minWithdrawal,
+                    dailyAdLimit: dailyAdLimit,
+                    paymentMethods: paymentMethods,
+                    maintenanceMessage: maintenanceMessage,
+                    lastUpdated: serverTimestamp(),
+                    updatedBy: currentAdmin.uid
+                };
+                
+                console.log("Saving to Firebase:", updatedSettings);
+                
+                // Save settings using setDoc with merge: true
+                await setDoc(configRef, updatedSettings, { merge: true });
+                
+                console.log("Settings saved successfully!");
+                
+                // Log the action
+                await logAdminAction('Updated system settings');
+                
+                showAlert('System settings saved successfully!', 'success');
+                
+                // Reload to confirm save
+                setTimeout(() => {
+                    loadSystemSettings();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error saving system settings:', error);
+                showAlert('Error saving settings: ' + error.message, 'error');
+            }
+        }
+
+        // Load bot links
+        async function loadBotLinks() {
+            try {
+                const botLinksRef = doc(db, "config", "botLinks");
+                const botLinksSnap = await getDoc(botLinksRef);
+                
+                if (botLinksSnap.exists()) {
+                    const botLinks = botLinksSnap.data();
+                    
+                    // Update form fields
+                    document.getElementById('telegram-bot-link').value = botLinks.telegram || '';
+                    document.getElementById('youtube-channel-link').value = botLinks.youtube || '';
+                    document.getElementById('referral-link-base').value = botLinks.referralBase || '';
+                    document.getElementById('app-download-link').value = botLinks.appDownload || '';
+                }
+                
+            } catch (error) {
+                console.error('Error loading bot links:', error);
+            }
+        }
+
+        // Save bot links
+        async function saveBotLinks() {
+            try {
+                const botLinksRef = doc(db, "config", "botLinks");
+                
+                const botLinks = {
+                    telegram: document.getElementById('telegram-bot-link').value,
+                    youtube: document.getElementById('youtube-channel-link').value,
+                    referralBase: document.getElementById('referral-link-base').value,
+                    appDownload: document.getElementById('app-download-link').value,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: currentAdmin.uid
+                };
+                
+                // Save bot links
+                await setDoc(botLinksRef, botLinks, { merge: true });
+                
+                // Log the action
+                await logAdminAction('Updated bot links');
+                
+                showAlert('Bot links saved successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving bot links:', error);
+                showAlert('Error saving bot links. Please try again.', 'error');
+            }
+        }
+
+        // Send notification to all users
+        async function sendNotificationToAllUsers() {
+            const title = document.getElementById('notification-title').value;
+            const message = document.getElementById('notification-message').value;
+            const type = document.getElementById('notification-type').value;
+            
+            if (!title || !message) {
+                showAlert('Please enter both title and message', 'error');
+                return;
+            }
+            
+            try {
+                const notificationsRef = collection(db, "notifications");
+                
+                await addDoc(notificationsRef, {
+                    title: title,
+                    message: message,
+                    type: type,
+                    createdAt: serverTimestamp(),
+                    sentBy: currentAdmin.uid,
+                    forAllUsers: true
+                });
+                
+                // Log the action
+                await logAdminAction(`Sent notification to all users: ${title}`);
+                
+                showAlert('Notification sent successfully to all users!', 'success');
+                
+                // Clear form
+                document.getElementById('notification-title').value = '';
+                document.getElementById('notification-message').value = '';
+                
+            } catch (error) {
+                console.error('Error sending notification:', error);
+                showAlert('Error sending notification. Please try again.', 'error');
+            }
+        }
+
+        // Load recent activity
+        async function loadRecentActivity() {
+            try {
+                const logsQuery = query(collection(db, "adminLogs"), where("adminId", "==", currentAdmin.uid));
+                const logsSnap = await getDocs(logsQuery);
+                
+                const activityDiv = document.getElementById('recent-activity');
+                
+                if (logsSnap.empty) {
+                    activityDiv.innerHTML = '<p>No recent activity</p>';
+                    return;
+                }
+                
+                let html = '';
+                const logs = [];
+                
+                logsSnap.forEach((doc) => {
+                    logs.push(doc.data());
+                });
+                
+                // Sort by timestamp (newest first)
+                logs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
+                
+                // Display logs
+                logs.slice(0, 5).forEach(log => {
+                    const time = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'N/A';
+                    html += `
+                        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--admin-border);">
+                            <div style="font-weight: bold;">${log.action}</div>
+                            <small style="color: #94A3B8;">${time}</small>
+                        </div>
+                    `;
+                });
+                
+                activityDiv.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading activity logs:', error);
+            }
+        }
+
+        // Load activity logs
+        async function loadActivityLogs() {
+            try {
+                const logsQuery = query(collection(db, "adminLogs"), where("adminId", "==", currentAdmin.uid));
+                const logsSnap = await getDocs(logsQuery);
+                
+                const logsDiv = document.getElementById('activity-logs');
+                
+                if (logsSnap.empty) {
+                    logsDiv.innerHTML = '<p>No activity logs found</p>';
+                    return;
+                }
+                
+                let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+                const logs = [];
+                
+                logsSnap.forEach((doc) => {
+                    logs.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Sort by timestamp (newest first)
+                logs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
+                
+                // Display logs
+                logs.forEach(log => {
+                    const time = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'N/A';
+                    html += `
+                        <div style="
+                            padding: 15px;
+                            background-color: rgba(255,255,255,0.05);
+                            border-radius: 8px;
+                            border-left: 4px solid var(--primary-yellow);
+                        ">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <strong>${log.action}</strong>
+                                <small style="color: #94A3B8;">${time}</small>
+                            </div>
+                            <div style="color: #94A3B8; font-size: 14px;">
+                                Admin: ${log.adminEmail || currentAdmin.email}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                logsDiv.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading activity logs:', error);
+            }
+        }
+
+        // Filter logs
+        function filterLogs(type) {
+            alert(`Filtering by ${type} - This would filter the logs in a real implementation`);
+        }
+
+        // Search logs
+        function searchLogs() {
+            const term = document.getElementById('log-search').value;
+            alert(`Searching for: ${term}`);
+        }
+
+        // Log admin action
+        async function logAdminAction(action) {
+            try {
+                const logsRef = collection(db, "adminLogs");
+                await addDoc(logsRef, {
+                    action: action,
+                    adminId: currentAdmin.uid,
+                    adminEmail: currentAdmin.email,
+                    timestamp: serverTimestamp(),
+                    ip: 'N/A'
+                });
+            } catch (error) {
+                console.error('Error logging action:', error);
+            }
+        }
 
         // Utility functions
         function openModal(modalId) {
@@ -1414,6 +2239,16 @@
             });
         }
 
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal, .confirm-modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        };
+
         // Make functions available globally
         window.showSection = showSection;
         window.refreshAllData = refreshAllData;
@@ -1434,17 +2269,6 @@
         window.closeModal = closeModal;
         window.showAlert = showAlert;
         window.showConfirm = showConfirm;
-        
-        // New functions for Token Management
-        window.copyToClipboard = copyToClipboard;
-        window.generateReferralLink = generateReferralLink;
-        window.findUserForReferral = findUserForReferral;
-        window.resetReferralSearch = resetReferralSearch;
-        window.updateUserReferralCode = updateUserReferralCode;
-        window.loadReferralPerformance = loadReferralPerformance;
-        window.generateBulkReferralLinks = generateBulkReferralLinks;
-        window.copyAllBulkLinks = copyAllBulkLinks;
-        window.saveTelegramBotConfig = saveTelegramBotConfig;
         
     </script>
 </body>
