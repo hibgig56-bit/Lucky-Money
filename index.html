@@ -1093,7 +1093,7 @@
         // Firebase SDK Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, query, where, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, query, where, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -1789,6 +1789,7 @@
                 
             } catch (error) {
                 console.error('Error loading referrals:', error);
+                showAlert('Error loading referral data', 'error');
             }
         }
 
@@ -1842,22 +1843,49 @@
             }
         }
 
-        // Save system settings
+        // Save system settings - FIXED VERSION
         async function saveSystemSettings() {
             try {
                 const configRef = doc(db, "config", "main");
                 
+                // Get all values from the form
+                const tokenRate = parseFloat(document.getElementById('token-rate').value);
+                const dailyAirdrop = parseInt(document.getElementById('daily-airdrop').value);
+                const adReward = parseInt(document.getElementById('ad-reward').value);
+                const taskReward = parseInt(document.getElementById('task-reward').value);
+                const referralReward = parseInt(document.getElementById('referral-reward').value);
+                const minReferrals = parseInt(document.getElementById('min-referrals').value);
+                const minWithdrawal = parseFloat(document.getElementById('min-withdrawal').value);
+                const dailyAdLimit = parseInt(document.getElementById('daily-ad-limit').value);
+                const paymentMethodsText = document.getElementById('payment-methods').value;
+                const maintenanceMessage = document.getElementById('maintenance-message').value;
+                
+                // Validate inputs
+                if (isNaN(tokenRate) || tokenRate < 0) {
+                    showAlert('Please enter a valid token conversion rate', 'error');
+                    return;
+                }
+                
+                if (isNaN(dailyAirdrop) || dailyAirdrop < 0) {
+                    showAlert('Please enter a valid daily airdrop amount', 'error');
+                    return;
+                }
+                
+                // Process payment methods
+                const paymentMethods = paymentMethodsText.split(',').map(method => method.trim()).filter(method => method.length > 0);
+                
+                // Create update object
                 const updatedSettings = {
-                    tokenRate: parseFloat(document.getElementById('token-rate').value) || 0.001,
-                    dailyAirdrop: parseInt(document.getElementById('daily-airdrop').value) || 50,
-                    adReward: parseInt(document.getElementById('ad-reward').value) || 10,
-                    taskReward: parseInt(document.getElementById('task-reward').value) || 50,
-                    referralReward: parseInt(document.getElementById('referral-reward').value) || 10,
-                    minReferrals: parseInt(document.getElementById('min-referrals').value) || 20,
-                    minWithdrawal: parseFloat(document.getElementById('min-withdrawal').value) || 1.0,
-                    dailyAdLimit: parseInt(document.getElementById('daily-ad-limit').value) || 100,
-                    paymentMethods: document.getElementById('payment-methods').value.split(',').map(s => s.trim()).filter(Boolean),
-                    maintenanceMessage: document.getElementById('maintenance-message').value || 'System is running normally...',
+                    tokenRate: tokenRate,
+                    dailyAirdrop: dailyAirdrop,
+                    adReward: adReward,
+                    taskReward: taskReward,
+                    referralReward: referralReward,
+                    minReferrals: minReferrals,
+                    minWithdrawal: minWithdrawal,
+                    dailyAdLimit: dailyAdLimit,
+                    paymentMethods: paymentMethods,
+                    maintenanceMessage: maintenanceMessage,
                     lastUpdated: serverTimestamp(),
                     updatedBy: currentAdmin.uid
                 };
@@ -1985,7 +2013,7 @@
                 });
                 
                 // Sort by timestamp (newest first)
-                logs.sort((a, b) => b.timestamp - a.timestamp);
+                logs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
                 
                 // Display logs
                 logs.slice(0, 5).forEach(log => {
@@ -2029,7 +2057,7 @@
                 });
                 
                 // Sort by timestamp (newest first)
-                logs.sort((a, b) => b.timestamp - a.timestamp);
+                logs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
                 
                 // Display logs
                 logs.forEach(log => {
