@@ -1,430 +1,329 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bee Token Admin Panel</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>🤖 Auto Follower Exchange Bot</title>
     <style>
-        /* Same CSS as before - unchanged */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
         }
-        
-        :root {
-            --primary-yellow: #FFD700;
-            --secondary-yellow: #FFEE58;
-            --dark-yellow: #F9A825;
-            --black: #1A1A1A;
-            --white: #FFFFFF;
-            --gray: #F5F5F5;
-            --green: #4CAF50;
-            --red: #F44336;
-            --blue: #2196F3;
-            --admin-bg: #0F172A;
-            --admin-text: #E2E8F0;
-            --admin-card: #1E293B;
-            --admin-border: #334155;
-        }
-        
+
         body {
-            background-color: var(--admin-bg);
-            color: var(--admin-text);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             min-height: 100vh;
+            color: #fff;
         }
-        
-        /* Login Page */
-        .login-container {
+
+        /* নেভিগেশন বার */
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--admin-bg) 0%, #1E3A8A 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        
-        .login-box {
-            background-color: var(--admin-card);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid var(--admin-border);
-        }
-        
-        .login-logo {
-            text-align: center;
-            margin-bottom: 30px;
+
+        .logo {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons {
+            display: flex;
             gap: 15px;
         }
-        
-        .login-logo i {
-            font-size: 36px;
-            color: var(--primary-yellow);
-        }
-        
-        .login-logo h2 {
-            font-size: 28px;
-            color: var(--primary-yellow);
-        }
-        
-        .login-form input {
-            width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border: 1px solid var(--admin-border);
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--admin-text);
-            font-size: 16px;
-        }
-        
-        .login-form input:focus {
-            outline: none;
-            border-color: var(--primary-yellow);
-            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
-        }
-        
-        .login-button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(to right, var(--primary-yellow), var(--dark-yellow));
-            color: var(--black);
+
+        .nav-btn {
+            padding: 10px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .login-button:hover {
-            transform: translateY(-2px);
-        }
-        
-        .login-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .error-message {
-            color: var(--red);
-            margin-top: 10px;
-            text-align: center;
-            font-size: 14px;
-            display: none;
-        }
-        
-        /* Admin Dashboard */
-        .admin-container {
-            display: none;
-            min-height: 100vh;
-        }
-        
-        .sidebar {
-            width: 250px;
-            background-color: var(--admin-card);
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            border-right: 1px solid var(--admin-border);
-        }
-        
-        .sidebar-header {
-            padding: 25px;
-            text-align: center;
-            border-bottom: 1px solid var(--admin-border);
-        }
-        
-        .sidebar-header h2 {
-            color: var(--primary-yellow);
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .sidebar-menu {
-            padding: 20px 0;
-        }
-        
-        .menu-item {
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
             cursor: pointer;
             transition: all 0.3s;
-            border-left: 3px solid transparent;
+            font-weight: 500;
         }
-        
-        .menu-item:hover {
-            background-color: rgba(255, 215, 0, 0.1);
-            border-left-color: var(--primary-yellow);
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: translateY(-2px);
         }
-        
-        .menu-item.active {
-            background-color: rgba(255, 215, 0, 0.15);
-            border-left-color: var(--primary-yellow);
-            color: var(--primary-yellow);
+
+        .admin-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
-        
-        .menu-item i {
-            width: 20px;
-            text-align: center;
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            width: calc(100% - 250px);
-        }
-        
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background-color: var(--admin-card);
-            border-radius: 10px;
-            margin-bottom: 30px;
-            border: 1px solid var(--admin-border);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logout-btn {
-            padding: 8px 20px;
-            background-color: var(--red);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .logout-btn:hover {
-            background-color: #d32f2f;
-        }
-        
-        .stats-grid {
+
+        /* মেইন কন্টেইনার */
+        .main-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: 1.5fr 1fr;
             gap: 20px;
-            margin-bottom: 30px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        
-        .stat-card {
-            background-color: var(--admin-card);
-            padding: 25px;
-            border-radius: 12px;
-            border: 1px solid var(--admin-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: transform 0.3s;
+
+        /* বট চ্যাট সেকশন */
+        .chat-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-yellow);
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
         }
-        
-        .stat-card .label {
-            font-size: 14px;
-            color: #94A3B8;
+
+        .chat-header h2 {
+            font-size: 20px;
             margin-bottom: 5px;
         }
-        
-        .stat-card .value {
+
+        .chat-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 15px;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .bot-message .message-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.7;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+
+        .chat-input input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .chat-input button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.05);
+        }
+
+        /* বাটন গ্রিড */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .menu-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* স্ট্যাটাস কার্ড */
+        .stats-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-title {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
             font-size: 32px;
             font-weight: bold;
-            color: var(--primary-yellow);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
-        .stat-card i {
-            font-size: 48px;
-            color: rgba(255, 215, 0, 0.3);
+
+        /* অ্যাডমিন প্যানেল */
+        .admin-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 20px;
         }
-        
-        .content-section {
-            display: none;
-            background-color: var(--admin-card);
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid var(--admin-border);
-            margin-bottom: 30px;
-        }
-        
-        .content-section.active {
-            display: block;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        
-        .section-header h3 {
-            font-size: 22px;
-            color: var(--primary-yellow);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .search-box {
+
+        .admin-tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-        
-        .search-box input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid var(--admin-border);
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--admin-text);
-        }
-        
-        .search-box button {
-            padding: 12px 25px;
-            background-color: var(--blue);
-            color: white;
+
+        .admin-tab {
+            padding: 10px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
             cursor: pointer;
-            font-weight: bold;
+            transition: all 0.3s;
         }
-        
-        /* User Table */
-        .user-table-container {
-            overflow-x: auto;
-            border-radius: 8px;
-            border: 1px solid var(--admin-border);
+
+        .admin-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
-        .user-table {
+
+        .admin-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 800px;
         }
-        
-        .user-table th {
-            background-color: #2D3748;
-            padding: 15px;
+
+        .admin-table th,
+        .admin-table td {
+            padding: 12px;
             text-align: left;
-            color: var(--primary-yellow);
-            font-weight: 600;
-            border-bottom: 2px solid var(--admin-border);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        .user-table td {
-            padding: 15px;
-            border-bottom: 1px solid var(--admin-border);
+
+        .admin-table th {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            font-size: 12px;
         }
-        
-        .user-table tr:hover {
-            background-color: rgba(255, 215, 0, 0.05);
+
+        .admin-table td {
+            font-size: 14px;
         }
-        
-        .user-table tr:last-child td {
-            border-bottom: none;
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
         }
-        
-        /* Action Buttons */
+
+        .status-pending {
+            background: #f59e0b20;
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-completed {
+            background: #10b98120;
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
         .action-btn {
-            padding: 6px 12px;
+            padding: 5px 10px;
             border: none;
             border-radius: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            margin-right: 5px;
+            font-size: 11px;
         }
-        
-        .edit-btn {
-            background-color: var(--blue);
-            color: white;
-        }
-        
-        .delete-btn {
-            background-color: var(--red);
-            color: white;
-        }
-        
-        .view-btn {
-            background-color: var(--green);
-            color: white;
-        }
-        
-        /* Settings Form */
-        .settings-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--primary-yellow);
-            font-weight: 600;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--admin-border);
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--admin-text);
-            font-size: 16px;
-        }
-        
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .save-btn {
-            padding: 14px 30px;
-            background: linear-gradient(to right, var(--green), #2E7D32);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            grid-column: 1 / -1;
-            justify-self: start;
-        }
-        
-        .save-btn:hover {
-            background: linear-gradient(to right, #45a049, #1B5E20);
-        }
-        
-        /* Modal */
+
+        /* লগইন মডাল */
         .modal {
             display: none;
             position: fixed;
@@ -432,1844 +331,908 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
-        }
-        
-        .modal-content {
-            background-color: var(--admin-card);
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid var(--admin-border);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .modal-title {
-            font-size: 20px;
-            color: var(--primary-yellow);
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            color: var(--admin-text);
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        /* Loading Spinner */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-yellow);
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
-            }
-            
-            .sidebar-header h2 span,
-            .menu-item span {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 70px;
-                width: calc(100% - 70px);
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .login-box {
-                padding: 20px;
-                margin: 20px;
-            }
         }
 
-        /* Alert & Confirm Styles */
-        .alert-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1001;
-            max-width: 400px;
-        }
-        
-        .alert {
-            background-color: var(--admin-card);
-            border: 1px solid var(--admin-border);
-            border-left: 4px solid var(--green);
-            padding: 15px 20px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        .alert.error {
-            border-left-color: var(--red);
-        }
-        
-        .alert.warning {
-            border-left-color: var(--primary-yellow);
-        }
-        
-        .alert.info {
-            border-left-color: var(--blue);
-        }
-        
-        .alert-content {
+        .modal.active {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
         }
-        
-        .alert-message {
-            flex: 1;
-            margin-right: 15px;
-        }
-        
-        .alert-close {
-            background: none;
-            border: none;
-            color: var(--admin-text);
-            cursor: pointer;
-            font-size: 18px;
-            opacity: 0.7;
-        }
-        
-        .alert-close:hover {
-            opacity: 1;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        .confirm-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .confirm-content {
-            background-color: var(--admin-card);
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 30px;
-            border-radius: 12px;
+            border-radius: 20px;
             width: 90%;
             max-width: 400px;
-            border: 1px solid var(--admin-border);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
             text-align: center;
         }
-        
-        .confirm-message {
-            margin-bottom: 25px;
-            font-size: 16px;
-        }
-        
-        .confirm-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .confirm-btn {
-            padding: 10px 25px;
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             cursor: pointer;
             font-weight: bold;
-            min-width: 100px;
         }
-        
-        .confirm-ok {
-            background-color: var(--red);
-            color: white;
-        }
-        
-        .confirm-cancel {
-            background-color: var(--blue);
-            color: white;
+
+        /* রেসপনসিভ */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Alert Container -->
-    <div class="alert-container" id="alert-container"></div>
+    <!-- নেভিগেশন বার -->
+    <div class="navbar">
+        <div class="logo">
+            🤖 Auto Follower Exchange
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="showBalance()">💰 ব্যালেন্স</button>
+            <button class="nav-btn" onclick="showServices()">🛒 সার্ভিস</button>
+            <button class="nav-btn admin-btn" onclick="openAdminLogin()">🛠️ অ্যাডমিন</button>
+        </div>
+    </div>
 
-    <!-- Confirm Modal -->
-    <div class="confirm-modal" id="confirm-modal">
-        <div class="confirm-content">
-            <div class="confirm-message" id="confirm-message"></div>
-            <div class="confirm-buttons">
-                <button class="confirm-btn confirm-cancel" id="confirm-cancel">Cancel</button>
-                <button class="confirm-btn confirm-ok" id="confirm-ok">OK</button>
+    <!-- মেইন কন্টেন্ট -->
+    <div class="main-container">
+        <!-- বট চ্যাট সেকশন -->
+        <div class="chat-section">
+            <div class="chat-header">
+                <h2>🤖 Auto Follower Exchange Bot</h2>
+                <p>অ্যাডমিন: @bxt927 | আপনার 50% লাভ</p>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages"></div>
+            
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="মেসেজ লিখুন..." onkeypress="if(event.key=='Enter') sendMessage()">
+                <button onclick="sendMessage()">📤 পাঠান</button>
+            </div>
+        </div>
+
+        <!-- স্ট্যাটস সেকশন -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-title">মোট ইউজার</div>
+                <div class="stat-value" id="totalUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">মোট অর্ডার</div>
+                <div class="stat-value" id="totalOrders">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">মোট পেমেন্ট</div>
+                <div class="stat-value" id="totalPayments">0 টাকা</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">আপনার লাভ (50%)</div>
+                <div class="stat-value" id="totalProfit">0 টাকা</div>
             </div>
         </div>
     </div>
 
-    <!-- Login Page -->
-    <div class="login-container" id="login-page">
-        <div class="login-box">
-            <div class="login-logo">
-                <i class="fas fa-bee"></i>
-                <h2>Bee Token Admin</h2>
-            </div>
-            <form class="login-form" id="login-form">
-                <input type="email" id="admin-email" placeholder="Admin Email" required>
-                <input type="password" id="admin-password" placeholder="Password" required>
-                <button type="submit" class="login-button" id="login-btn">Login to Dashboard</button>
-                <div class="error-message" id="login-error"></div>
-            </form>
+    <!-- অ্যাডমিন প্যানেল (লগইন করার পর দেখাবে) -->
+    <div class="admin-panel" id="adminPanel" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>🛠️ অ্যাডমিন প্যানেল</h2>
+            <button class="nav-btn" onclick="logoutAdmin()">🚪 লগআউট</button>
         </div>
+        
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchAdminTab('users')">👥 ইউজার</button>
+            <button class="admin-tab" onclick="switchAdminTab('orders')">📦 অর্ডার</button>
+            <button class="admin-tab" onclick="switchAdminTab('payments')">💰 পেমেন্ট</button>
+            <button class="admin-tab" onclick="switchAdminTab('settings')">⚙️ সেটিংস</button>
+        </div>
+
+        <div id="adminContent"></div>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div class="admin-container" id="admin-dashboard">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-bee"></i> <span>Bee Admin</span></h2>
-            </div>
-            <div class="sidebar-menu">
-                <div class="menu-item active" data-section="dashboard">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </div>
-                <div class="menu-item" data-section="users">
-                    <i class="fas fa-users"></i>
-                    <span>User Management</span>
-                </div>
-                <div class="menu-item" data-section="settings">
-                    <i class="fas fa-cog"></i>
-                    <span>System Settings</span>
-                </div>
-                <div class="menu-item" data-section="withdrawals">
-                    <i class="fas fa-wallet"></i>
-                    <span>Withdrawals</span>
-                </div>
-                <div class="menu-item" data-section="referrals">
-                    <i class="fas fa-user-friends"></i>
-                    <span>Referral System</span>
-                </div>
-                <div class="menu-item" data-section="notifications">
-                    <i class="fas fa-bell"></i>
-                    <span>Send Notification</span>
-                </div>
-                <div class="menu-item" data-section="bot-links">
-                    <i class="fas fa-robot"></i>
-                    <span>Bot Links</span>
-                </div>
-                <div class="menu-item" data-section="logs">
-                    <i class="fas fa-history"></i>
-                    <span>Activity Logs</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <div>
-                    <h1>Admin Dashboard</h1>
-                    <p id="current-date">Loading...</p>
-                </div>
-                <div class="user-info">
-                    <span id="admin-email-display">admin@bee.com</span>
-                    <button class="logout-btn" id="admin-logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </div>
-            </div>
-
-            <!-- Dashboard Statistics -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div>
-                        <div class="label">Total Users</div>
-                        <div class="value" id="stat-total-users">0</div>
-                    </div>
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-card">
-                    <div>
-                        <div class="label">Total Tokens</div>
-                        <div class="value" id="stat-total-tokens">0</div>
-                    </div>
-                    <i class="fas fa-coins"></i>
-                </div>
-                <div class="stat-card">
-                    <div>
-                        <div class="label">Total USDT</div>
-                        <div class="value" id="stat-total-usdt">$0.00</div>
-                    </div>
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-                <div class="stat-card">
-                    <div>
-                        <div class="label">Total Referrals</div>
-                        <div class="value" id="stat-total-referrals">0</div>
-                    </div>
-                    <i class="fas fa-user-friends"></i>
-                </div>
-                <div class="stat-card">
-                    <div>
-                        <div class="label">Pending Withdrawals</div>
-                        <div class="value" id="stat-pending-withdrawals">0</div>
-                    </div>
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <div class="stat-card">
-                    <div>
-                        <div class="label">Active Today</div>
-                        <div class="value" id="stat-active-today">0</div>
-                    </div>
-                    <i class="fas fa-chart-line"></i>
-                </div>
-            </div>
-
-            <!-- Dashboard Section -->
-            <div class="content-section active" id="dashboard-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h3>
-                </div>
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
-                    <div style="background-color: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
-                        <h4 style="margin-bottom: 15px; color: var(--primary-yellow);">Recent Activity</h4>
-                        <div id="recent-activity">
-                            <p>Loading recent activity...</p>
-                        </div>
-                    </div>
-                    <div style="background-color: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
-                        <h4 style="margin-bottom: 15px; color: var(--primary-yellow);">Quick Actions</h4>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <button class="action-btn view-btn" onclick="showSection('users')">
-                                <i class="fas fa-users"></i> View All Users
-                            </button>
-                            <button class="action-btn edit-btn" onclick="showSection('withdrawals')">
-                                <i class="fas fa-wallet"></i> Process Withdrawals
-                            </button>
-                            <button class="action-btn edit-btn" onclick="refreshAllData()">
-                                <i class="fas fa-sync"></i> Refresh Statistics
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Users Section -->
-            <div class="content-section" id="users-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-users"></i> User Management</h3>
-                    <div class="search-box">
-                        <input type="text" id="user-search" placeholder="Search by User ID, Email or Telegram ID...">
-                        <button onclick="searchUsers()">Search</button>
-                        <button onclick="clearUserSearch()">Clear</button>
-                    </div>
-                </div>
-                <div class="user-table-container">
-                    <table class="user-table" id="users-table">
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Name</th>
-                                <th>Tokens</th>
-                                <th>USDT</th>
-                                <th>Referrals</th>
-                                <th>Status</th>
-                                <th>Joined Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-body">
-                            <tr>
-                                <td colspan="8" style="text-align: center; padding: 30px;">Loading users...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                    <div id="pagination-info">Showing 0 of 0 users</div>
-                    <div>
-                        <button onclick="prevPage()" class="action-btn" style="margin-right: 10px;">Previous</button>
-                        <button onclick="nextPage()" class="action-btn">Next</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Section -->
-            <div class="content-section" id="settings-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-cog"></i> System Settings</h3>
-                </div>
-                <form class="settings-form" id="system-settings">
-                    <div class="form-group">
-                        <label>Token Conversion Rate (1 BEE = ? USDT)</label>
-                        <input type="number" id="token-rate" step="0.00001" min="0" value="0.001">
-                    </div>
-                    <div class="form-group">
-                        <label>Daily Airdrop Reward (Tokens)</label>
-                        <input type="number" id="daily-airdrop" min="0" value="50">
-                    </div>
-                    <div class="form-group">
-                        <label>Ad Reward Amount (Tokens per ad)</label>
-                        <input type="number" id="ad-reward" min="0" value="10">
-                    </div>
-                    <div class="form-group">
-                        <label>Task Reward Amount (Tokens per task)</label>
-                        <input type="number" id="task-reward" min="0" value="50">
-                    </div>
-                    <div class="form-group">
-                        <label>Referral Reward (Tokens per referral)</label>
-                        <input type="number" id="referral-reward" min="0" value="10">
-                    </div>
-                    <div class="form-group">
-                        <label>Minimum Referrals for Withdrawal</label>
-                        <input type="number" id="min-referrals" min="0" value="20">
-                    </div>
-                    <div class="form-group">
-                        <label>Minimum Withdrawal Amount (USDT)</label>
-                        <input type="number" id="min-withdrawal" step="0.01" min="0" value="1.0">
-                    </div>
-                    <div class="form-group">
-                        <label>Daily Ad Limit</label>
-                        <input type="number" id="daily-ad-limit" min="1" value="100">
-                    </div>
-                    <div class="form-group">
-                        <label>Payment Methods (comma separated)</label>
-                        <input type="text" id="payment-methods" value="Binance, PayPal, Skrill, Perfect Money">
-                    </div>
-                    <div class="form-group">
-                        <label>System Maintenance Message</label>
-                        <textarea id="maintenance-message" placeholder="System is running normally..."></textarea>
-                    </div>
-                    <button type="button" class="save-btn" onclick="saveSystemSettings()">
-                        <i class="fas fa-save"></i> Save All Settings
-                    </button>
-                </form>
-            </div>
-
-            <!-- Withdrawals Section -->
-            <div class="content-section" id="withdrawals-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-wallet"></i> Withdrawal Requests</h3>
-                </div>
-                <table class="user-table" id="withdrawals-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>User ID</th>
-                            <th>Amount (USDT)</th>
-                            <th>Wallet Address</th>
-                            <th>Status</th>
-                            <th>Request Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="withdrawals-table-body">
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 30px;">Loading withdrawals...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Referrals Section -->
-            <div class="content-section" id="referrals-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-user-friends"></i> Referral System</h3>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div style="background-color: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
-                        <h4 style="color: var(--primary-yellow); margin-bottom: 10px;">Top Referrers</h4>
-                        <div id="top-referrers">Loading...</div>
-                    </div>
-                    <div style="background-color: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
-                        <h4 style="color: var(--primary-yellow); margin-bottom: 10px;">Referral Statistics</h4>
-                        <div id="referral-stats">Loading...</div>
-                    </div>
-                </div>
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Referrer</th>
-                            <th>Referred User</th>
-                            <th>Reward Given</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="referrals-table-body">
-                        <tr>
-                            <td colspan="4" style="text-align: center; padding: 30px;">Loading referral data...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Notifications Section -->
-            <div class="content-section" id="notifications-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-bell"></i> Send Notification</h3>
-                </div>
-                <form class="settings-form" style="grid-template-columns: 1fr;">
-                    <div class="form-group">
-                        <label>Notification Title</label>
-                        <input type="text" id="notification-title" placeholder="Enter notification title">
-                    </div>
-                    <div class="form-group">
-                        <label>Notification Message</label>
-                        <textarea id="notification-message" rows="6" placeholder="Enter notification message for all users"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Notification Type</label>
-                        <select id="notification-type">
-                            <option value="info">Information</option>
-                            <option value="success">Success</option>
-                            <option value="warning">Warning</option>
-                            <option value="error">Error</option>
-                        </select>
-                    </div>
-                    <button type="button" class="save-btn" onclick="sendNotificationToAllUsers()">
-                        <i class="fas fa-paper-plane"></i> Send to All Users
-                    </button>
-                </form>
-            </div>
-
-            <!-- Bot Links Section -->
-            <div class="content-section" id="bot-links-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-robot"></i> Bot Links Management</h3>
-                </div>
-                <form class="settings-form">
-                    <div class="form-group">
-                        <label>Telegram Bot Link</label>
-                        <input type="text" id="telegram-bot-link" placeholder="https://t.me/your_bot_or_app?start=">
-                    </div>
-                    <div class="form-group">
-                        <label>YouTube Channel Link</label>
-                        <input type="text" id="youtube-channel-link" placeholder="https://youtube.com/@channel">
-                    </div>
-                    <div class="form-group">
-                        <label>Referral Link Base URL</label>
-                        <input type="text" id="referral-link-base" placeholder="https://yourdomain.com?ref=">
-                    </div>
-                    <div class="form-group">
-                        <label>App Download Link</label>
-                        <input type="text" id="app-download-link" placeholder="https://play.google.com/store/apps/details?id=com.example">
-                    </div>
-                    <button type="button" class="save-btn" onclick="saveBotLinks()">
-                        <i class="fas fa-save"></i> Save Bot Links
-                    </button>
-                </form>
-            </div>
-
-            <!-- Logs Section -->
-            <div class="content-section" id="logs-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-history"></i> Activity Logs</h3>
-                    <div class="search-box">
-                        <input type="text" id="log-search" placeholder="Search logs...">
-                        <button onclick="searchLogs()">Search</button>
-                    </div>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <button onclick="filterLogs('all')" class="action-btn" style="margin-right: 10px;">All</button>
-                    <button onclick="filterLogs('airdrop')" class="action-btn" style="margin-right: 10px;">Airdrops</button>
-                    <button onclick="filterLogs('ad')" class="action-btn" style="margin-right: 10px;">Ads</button>
-                    <button onclick="filterLogs('withdrawal')" class="action-btn" style="margin-right: 10px;">Withdrawals</button>
-                    <button onclick="filterLogs('referral')" class="action-btn">Referrals</button>
-                </div>
-                <div id="activity-logs">
-                    <p>Loading activity logs...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Edit Modal -->
-    <div class="modal" id="user-edit-modal">
+    <!-- অ্যাডমিন লগইন মডাল -->
+    <div class="modal" id="adminLoginModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Edit User</h3>
-                <button class="close-modal" onclick="closeModal('user-edit-modal')">&times;</button>
-            </div>
-            <form id="edit-user-form">
-                <div class="form-group">
-                    <label>User ID</label>
-                    <input type="text" id="edit-user-id" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="edit-user-name">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="edit-user-email">
-                </div>
-                <div class="form-group">
-                    <label>Tokens Balance</label>
-                    <input type="number" id="edit-user-tokens" min="0">
-                </div>
-                <div class="form-group">
-                    <label>USDT Balance</label>
-                    <input type="number" id="edit-user-usdt" step="0.0001" min="0">
-                </div>
-                <div class="form-group">
-                    <label>Referral Count</label>
-                    <input type="number" id="edit-user-referrals" min="0">
-                </div>
-                <div class="form-group">
-                    <label>Account Status</label>
-                    <select id="edit-user-status">
-                        <option value="active">Active</option>
-                        <option value="suspended">Suspended</option>
-                        <option value="banned">Banned</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Referral Code</label>
-                    <input type="text" id="edit-user-referral-code">
-                </div>
-                <button type="button" class="save-btn" onclick="saveUserEdits()">Save Changes</button>
-            </form>
+            <h2>🛠️ অ্যাডমিন লগইন</h2>
+            <input type="text" id="adminUsername" placeholder="ইউজারনেম">
+            <input type="password" id="adminPassword" placeholder="পাসওয়ার্ড">
+            <button onclick="adminLogin()">লগইন</button>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyASMBf-fL9tJOj2sgKdpVK77TYRMga1bag",
-            authDomain: "money-host-56ee9.firebaseapp.com",
-            databaseURL: "https://money-host-56ee9-default-rtdb.firebaseio.com",
-            projectId: "money-host-56ee9",
-            storageBucket: "money-host-56ee9.firebasestorage.app",
-            messagingSenderId: "701262930342",
-            appId: "1:701262930342:web:a8c49ea25b730332ff2f67"
+    <script>
+        // ============================================
+        // কনফিগারেশন
+        // ============================================
+        const CONFIG = {
+            adminUsername: "ayman",
+            adminPassword: "ayman322",
+            nagadNumber: "01973933235",
+            supportUsername: "@bxt927",
+            channelLink: "https://t.me/moneyhostes",
+            channelJoinReward: 5,
+            referralBonus: 10,
+            smmgenApiKey: "7389cf5f6cb2b65c6c2a13a711149f69",
+            smmgenUserId: "GEN-50981",
+            
+            prices: {
+                instagram_follower: 3, instagram_like: 1, instagram_view: 0.5,
+                facebook_follower: 4, facebook_like: 2, facebook_view: 1,
+                youtube_subscriber: 5, youtube_view: 1, youtube_like: 2,
+                telegram_member: 3, telegram_view: 1, telegram_reaction: 2,
+                tiktok_follower: 4, tiktok_like: 2, tiktok_view: 1
+            }
         };
 
-        // Firebase SDK Imports - ALL required functions
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { 
-            getAuth, 
-            onAuthStateChanged, 
-            signInWithEmailAndPassword, 
-            signOut 
-        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            getDoc, 
-            getDocs,
-            setDoc, 
-            updateDoc, 
-            query, 
-            where, 
-            onSnapshot, 
-            addDoc, 
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Admin UID
-        const ADMIN_UIDS = ["3jTr4Bc6bAbfBaMgJvBzniJPMWq1"];
-
-        // Global variables
-        let currentAdmin = null;
-        let usersData = [];
-        let filteredUsers = [];
-        let currentPage = 1;
-        const usersPerPage = 20;
-
-        // Initialize Admin Panel
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCurrentDate();
-            setupMenuHandlers();
-            setupLoginForm();
-            setupEventListeners();
+        // ============================================
+        // ডাটাবেস (লোকাল স্টোরেজ)
+        // ============================================
+        let Database = {
+            users: JSON.parse(localStorage.getItem('db_users')) || [],
+            orders: JSON.parse(localStorage.getItem('db_orders')) || [],
+            payments: JSON.parse(localStorage.getItem('db_payments')) || [],
             
-            // Check if admin is already logged in
-            onAuthStateChanged(auth, handleAuthStateChange);
-        });
-
-        // Handle authentication state change
-        async function handleAuthStateChange(user) {
-            if (user && ADMIN_UIDS.includes(user.uid)) {
-                currentAdmin = user;
-                showAdminDashboard();
-                loadDashboardData();
-            } else {
-                showLoginPage();
-            }
-        }
-
-        // Update current date
-        function updateCurrentDate() {
-            const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            };
-            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
-        }
-
-        // Setup menu handlers
-        function setupMenuHandlers() {
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const section = this.getAttribute('data-section');
-                    
-                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    showSection(section);
-                });
-            });
-        }
-
-        // Setup event listeners
-        function setupEventListeners() {
-            // Login form
-            document.getElementById('login-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                handleAdminLogin();
-            });
+            save() {
+                localStorage.setItem('db_users', JSON.stringify(this.users));
+                localStorage.setItem('db_orders', JSON.stringify(this.orders));
+                localStorage.setItem('db_payments', JSON.stringify(this.payments));
+            },
             
-            // Logout button
-            document.getElementById('admin-logout-btn').addEventListener('click', async () => {
-                const confirmed = await showConfirm('Are you sure you want to logout?');
-                if (confirmed) {
-                    await signOut(auth);
-                    showLoginPage();
+            addUser(user) {
+                this.users.push(user);
+                this.save();
+            },
+            
+            addOrder(order) {
+                this.orders.push(order);
+                this.save();
+            },
+            
+            addPayment(payment) {
+                this.payments.push(payment);
+                this.save();
+            },
+            
+            updateOrder(orderId, data) {
+                let order = this.orders.find(o => o.id == orderId);
+                if(order) {
+                    Object.assign(order, data);
+                    this.save();
                 }
-            });
-        }
-
-        // Setup login form
-        function setupLoginForm() {
-            // Already handled in setupEventListeners
-        }
-
-        // Admin login function
-        async function handleAdminLogin() {
-            const email = document.getElementById('admin-email').value;
-            const password = document.getElementById('admin-password').value;
-            const loginBtn = document.getElementById('login-btn');
-            const errorDiv = document.getElementById('login-error');
+            },
             
-            if (!email || !password) {
-                errorDiv.textContent = 'Please enter email and password';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
-            try {
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="loading-spinner"></span> Logging in...';
-                
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                
-                if (!ADMIN_UIDS.includes(userCredential.user.uid)) {
-                    await signOut(auth);
-                    showAlert("You are not authorized to access this panel.", "error");
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Login to Dashboard';
-                    return;
+            updatePayment(paymentId, data) {
+                let payment = this.payments.find(p => p.id == paymentId);
+                if(payment) {
+                    Object.assign(payment, data);
+                    this.save();
                 }
-                
-                showAlert("Login successful!", "success");
-                
-            } catch (error) {
-                showAlert(error.message, "error");
-                errorDiv.textContent = error.message;
-                errorDiv.style.display = 'block';
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Login to Dashboard';
             }
-        }
+        };
 
-        // Show admin dashboard
-        function showAdminDashboard() {
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'flex';
-            if (currentAdmin) {
-                document.getElementById('admin-email-display').textContent = currentAdmin.email;
-            }
-        }
+        // ============================================
+        // কারেন্ট ইউজার
+        // ============================================
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let userState = null;
+        let selectedService = null;
+        let selectedQuantity = null;
 
-        // Show login page
-        function showLoginPage() {
-            document.getElementById('admin-dashboard').style.display = 'none';
-            document.getElementById('login-page').style.display = 'flex';
-            currentAdmin = null;
-        }
-
-        // Show section
-        function showSection(section) {
-            document.querySelectorAll('.content-section').forEach(sec => {
-                sec.classList.remove('active');
-            });
+        // ============================================
+        // বট ফাংশন
+        // ============================================
+        function addMessage(text, isUser = false, buttons = null) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
             
-            document.getElementById(section + '-section').classList.add('active');
-            
-            switch(section) {
-                case 'users':
-                    loadUsers();
-                    break;
-                case 'withdrawals':
-                    loadWithdrawals();
-                    break;
-                case 'referrals':
-                    loadReferrals();
-                    break;
-                case 'logs':
-                    loadActivityLogs();
-                    break;
-                case 'settings':
-                    loadSystemSettings();
-                    break;
-                case 'notifications':
-                    // Clear notification form
-                    document.getElementById('notification-title').value = '';
-                    document.getElementById('notification-message').value = '';
-                    break;
-                case 'bot-links':
-                    loadBotLinks();
-                    break;
-            }
-        }
-
-        // Load dashboard data
-        async function loadDashboardData() {
-            try {
-                // Load users data
-                const usersRef = collection(db, "users");
-                onSnapshot(usersRef, (snapshot) => {
-                    usersData = [];
-                    let totalTokens = 0;
-                    let totalReferrals = 0;
-                    let activeToday = 0;
-                    const today = new Date().toISOString().split('T')[0];
-                    
-                    snapshot.forEach((doc) => {
-                        const user = doc.data();
-                        user.id = doc.id;
-                        usersData.push(user);
-                        
-                        // Calculate totals
-                        totalTokens += user.balance || 0;
-                        totalReferrals += user.referrals || 0;
-                        
-                        if (user.lastActive && user.lastActive.includes(today)) {
-                            activeToday++;
-                        }
-                    });
-                    
-                    // Update dashboard stats
-                    document.getElementById('stat-total-users').textContent = snapshot.size;
-                    document.getElementById('stat-total-tokens').textContent = totalTokens.toLocaleString();
-                    document.getElementById('stat-total-referrals').textContent = totalReferrals;
-                    document.getElementById('stat-active-today').textContent = activeToday;
-                    
-                    // Load system settings to calculate USDT value
-                    const configRef = doc(db, "config", "main");
-                    getDoc(configRef).then(configSnap => {
-                        if (configSnap.exists()) {
-                            const config = configSnap.data();
-                            const rate = config.tokenRate || 0.001;
-                            const totalUSDT = totalTokens * rate;
-                            document.getElementById('stat-total-usdt').textContent = `$${totalUSDT.toFixed(2)}`;
-                        }
-                    });
-                    
-                    // Load users table if on users page
-                    if (document.getElementById('users-section').classList.contains('active')) {
-                        loadUsers();
-                    }
-                });
-                
-                // Load pending withdrawals
-                const withdrawalsQuery = query(collection(db, "withdrawals"), where("status", "==", "pending"));
-                onSnapshot(withdrawalsQuery, (snapshot) => {
-                    document.getElementById('stat-pending-withdrawals').textContent = snapshot.size;
-                });
-                
-                // Load recent activity
-                loadRecentActivity();
-                
-                // Load system settings
-                loadSystemSettings();
-                
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-                showAlert('Error loading dashboard data. Please refresh.', 'error');
-            }
-        }
-
-        // Refresh all data
-        function refreshAllData() {
-            loadDashboardData();
-            showAlert('Data refreshed successfully!', 'success');
-        }
-
-        // Load users with pagination
-        function loadUsers() {
-            filteredUsers = usersData;
-            currentPage = 1;
-            renderUsersTable();
-        }
-
-        // Render users table
-        function renderUsersTable() {
-            const tbody = document.getElementById('users-table-body');
-            
-            if (filteredUsers.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 30px;">
-                            No users found
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            const startIndex = (currentPage - 1) * usersPerPage;
-            const endIndex = startIndex + usersPerPage;
-            const pageUsers = filteredUsers.slice(startIndex, endIndex);
-            
-            tbody.innerHTML = '';
-            
-            pageUsers.forEach(user => {
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td>${user.id || user.uid}</td>
-                    <td>${user.name || 'Guest Bee'}</td>
-                    <td>${(user.balance || 0).toLocaleString()}</td>
-                    <td>$${((user.balance || 0) * 0.001).toFixed(4)}</td>
-                    <td>${user.referrals || 0}</td>
-                    <td>
-                        <span style="
-                            padding: 4px 8px;
-                            border-radius: 4px;
-                            background-color: ${(user.isBlocked ? 'var(--red)' : 'var(--green)')};
-                            color: white;
-                            font-size: 12px;
-                        ">
-                            ${user.isBlocked ? 'Blocked' : 'Active'}
-                        </span>
-                    </td>
-                    <td>${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
-                    <td>
-                        <button class="action-btn view-btn" onclick="viewUserDetails('${user.id}')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn edit-btn" onclick="editUser('${user.id}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn ${user.isBlocked ? 'edit-btn' : 'delete-btn'}" onclick="toggleBlockUser('${user.id}', ${user.isBlocked || false})">
-                            ${user.isBlocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-ban"></i>'}
-                        </button>
-                    </td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-            
-            updatePaginationInfo();
-        }
-
-        // Update pagination info
-        function updatePaginationInfo() {
-            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-            const startIndex = (currentPage - 1) * usersPerPage + 1;
-            const endIndex = Math.min(currentPage * usersPerPage, filteredUsers.length);
-            
-            document.getElementById('pagination-info').innerHTML = `
-                Showing ${startIndex}-${endIndex} of ${filteredUsers.length} users
-                ${totalPages > 1 ? `(Page ${currentPage} of ${totalPages})` : ''}
-            `;
-        }
-
-        // Next page
-        function nextPage() {
-            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderUsersTable();
-            }
-        }
-
-        // Previous page
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderUsersTable();
-            }
-        }
-
-        // Search users
-        function searchUsers() {
-            const searchTerm = document.getElementById('user-search').value.toLowerCase();
-            
-            if (!searchTerm) {
-                filteredUsers = usersData;
-            } else {
-                filteredUsers = usersData.filter(user => 
-                    (user.id && user.id.toLowerCase().includes(searchTerm)) ||
-                    (user.name && user.name.toLowerCase().includes(searchTerm)) ||
-                    (user.email && user.email.toLowerCase().includes(searchTerm)) ||
-                    (user.referralCode && user.referralCode.toLowerCase().includes(searchTerm))
-                );
-            }
-            
-            currentPage = 1;
-            renderUsersTable();
-        }
-
-        // Clear user search
-        function clearUserSearch() {
-            document.getElementById('user-search').value = '';
-            filteredUsers = usersData;
-            currentPage = 1;
-            renderUsersTable();
-        }
-
-        // View user details
-        async function viewUserDetails(userId) {
-            try {
-                const userRef = doc(db, "users", userId);
-                const userSnap = await getDoc(userRef);
-                
-                if (userSnap.exists()) {
-                    const user = userSnap.data();
-                    
-                    alert(`
-                        User Details:
-                        ID: ${userId}
-                        Name: ${user.name || 'N/A'}
-                        Email: ${user.email || 'N/A'}
-                        Balance: ${user.balance || 0} tokens
-                        USDT Value: $${((user.balance || 0) * 0.001).toFixed(4)}
-                        Referrals: ${user.referrals || 0}
-                        Referral Code: ${user.referralCode || 'N/A'}
-                        Status: ${user.isBlocked ? 'Blocked' : 'Active'}
-                        Joined: ${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleString() : 'N/A'}
-                        Last Active: ${user.lastActive || 'N/A'}
-                    `);
-                } else {
-                    showAlert('User not found', 'error');
-                }
-            } catch (error) {
-                console.error('Error viewing user details:', error);
-                showAlert('Error loading user details', 'error');
-            }
-        }
-
-        // Edit user
-        async function editUser(userId) {
-            try {
-                const userRef = doc(db, "users", userId);
-                const userSnap = await getDoc(userRef);
-                
-                if (userSnap.exists()) {
-                    const user = userSnap.data();
-                    
-                    // Fill modal form
-                    document.getElementById('edit-user-id').value = userId;
-                    document.getElementById('edit-user-name').value = user.name || '';
-                    document.getElementById('edit-user-email').value = user.email || '';
-                    document.getElementById('edit-user-tokens').value = user.balance || 0;
-                    document.getElementById('edit-user-usdt').value = ((user.balance || 0) * 0.001).toFixed(4);
-                    document.getElementById('edit-user-referrals').value = user.referrals || 0;
-                    document.getElementById('edit-user-status').value = user.isBlocked ? 'banned' : 'active';
-                    document.getElementById('edit-user-referral-code').value = user.referralCode || '';
-                    
-                    // Store user ID for saving
-                    document.getElementById('edit-user-form').dataset.userId = userId;
-                    
-                    // Show modal
-                    openModal('user-edit-modal');
-                } else {
-                    showAlert('User not found', 'error');
-                }
-            } catch (error) {
-                console.error('Error loading user for edit:', error);
-                showAlert('Error loading user data', 'error');
-            }
-        }
-
-        // Save user edits
-        async function saveUserEdits() {
-            const userId = document.getElementById('edit-user-form').dataset.userId;
-            
-            if (!userId) {
-                showAlert('User ID not found', 'error');
-                return;
-            }
-            
-            const userRef = doc(db, "users", userId);
-            
-            try {
-                const tokens = parseInt(document.getElementById('edit-user-tokens').value) || 0;
-                const status = document.getElementById('edit-user-status').value;
-                
-                const updates = {
-                    name: document.getElementById('edit-user-name').value,
-                    email: document.getElementById('edit-user-email').value,
-                    balance: tokens,
-                    referrals: parseInt(document.getElementById('edit-user-referrals').value) || 0,
-                    isBlocked: status === 'banned' || status === 'suspended',
-                    referralCode: document.getElementById('edit-user-referral-code').value,
-                    updatedAt: serverTimestamp()
-                };
-                
-                await updateDoc(userRef, updates);
-                
-                // Log the action
-                await logAdminAction(`Edited user ${userId} - Tokens: ${tokens}, Status: ${status}`);
-                
-                showAlert('User updated successfully!', 'success');
-                closeModal('user-edit-modal');
-                loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error updating user:', error);
-                showAlert('Error updating user. Please try again.', 'error');
-            }
-        }
-
-        // Toggle block user
-        async function toggleBlockUser(userId, isCurrentlyBlocked) {
-            const action = isCurrentlyBlocked ? 'unblock' : 'block';
-            const confirmed = await showConfirm(`Are you sure you want to ${action} this user?`);
-            
-            if (!confirmed) return;
-            
-            try {
-                const userRef = doc(db, "users", userId);
-                await updateDoc(userRef, {
-                    isBlocked: !isCurrentlyBlocked,
-                    updatedAt: serverTimestamp()
-                });
-                
-                // Log the action
-                await logAdminAction(`${action}ed user ${userId}`);
-                
-                showAlert(`User ${action}ed successfully!`, 'success');
-                loadDashboardData();
-                
-            } catch (error) {
-                console.error(`Error ${action}ing user:`, error);
-                showAlert(`Error ${action}ing user. Please try again.`, 'error');
-            }
-        }
-
-        // Load withdrawals
-        async function loadWithdrawals() {
-            try {
-                const withdrawalsQuery = query(collection(db, "withdrawals"));
-                const unsubscribe = onSnapshot(withdrawalsQuery, (snapshot) => {
-                    const tbody = document.getElementById('withdrawals-table-body');
-                    tbody.innerHTML = '';
-                    
-                    if (snapshot.empty) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="7" style="text-align: center; padding: 30px;">
-                                    No withdrawal requests found
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-                    
-                    snapshot.forEach((docSnap) => {
-                        const request = docSnap.data();
-                        const row = document.createElement('tr');
-                        
-                        let statusColor = 'var(--blue)';
-                        if (request.status === 'approved') statusColor = 'var(--green)';
-                        if (request.status === 'rejected') statusColor = 'var(--red)';
-                        
-                        row.innerHTML = `
-                            <td>${docSnap.id.substring(0, 8)}</td>
-                            <td>${request.userId || 'N/A'}</td>
-                            <td>$${request.amount?.toFixed(4) || '0.0000'}</td>
-                            <td style="font-family: monospace;">${request.paymentDetail || 'Not provided'}</td>
-                            <td>
-                                <span style="
-                                    padding: 4px 8px;
-                                    border-radius: 4px;
-                                    background-color: ${statusColor};
-                                    color: white;
-                                    font-size: 12px;
-                                ">
-                                    ${request.status || 'pending'}
-                                </span>
-                            </td>
-                            <td>${request.requestedAt ? new Date(request.requestedAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
-                            <td>
-                                ${request.status === 'pending' ? `
-                                    <button class="action-btn edit-btn" onclick="handleWithdrawal('${docSnap.id}', 'approved')">
-                                        Approve
-                                    </button>
-                                    <button class="action-btn delete-btn" onclick="handleWithdrawal('${docSnap.id}', 'rejected')">
-                                        Reject
-                                    </button>
-                                ` : 'Processed'}
-                            </td>
-                        `;
-                        
-                        tbody.appendChild(row);
-                    });
-                });
-                
-                // Store unsubscribe function
-                window.withdrawalsUnsubscribe = unsubscribe;
-                
-            } catch (error) {
-                console.error('Error loading withdrawals:', error);
-                showAlert('Error loading withdrawals', 'error');
-            }
-        }
-
-        // Handle withdrawal
-        async function handleWithdrawal(requestId, newStatus) {
-            const statusText = newStatus === 'approved' ? 'approve' : 'reject';
-            const confirmed = await showConfirm(`Are you sure you want to ${statusText} this withdrawal?`);
-            
-            if (!confirmed) return;
-            
-            try {
-                const requestRef = doc(db, "withdrawals", requestId);
-                
-                // First get the current request data
-                const requestSnap = await getDoc(requestRef);
-                if (!requestSnap.exists()) {
-                    showAlert('Withdrawal request not found', 'error');
-                    return;
-                }
-                
-                const requestData = requestSnap.data();
-                
-                if (newStatus === 'rejected') {
-                    // Refund balance to user
-                    const userRef = doc(db, "users", requestData.userId);
-                    const userSnap = await getDoc(userRef);
-                    
-                    if (userSnap.exists()) {
-                        const userData = userSnap.data();
-                        const currentBalance = userData.balance || 0;
-                        const withdrawalAmountInTokens = (requestData.amount || 0) * 1000; // Assuming 0.001 rate
-                        
-                        await updateDoc(userRef, {
-                            balance: currentBalance + withdrawalAmountInTokens,
-                            updatedAt: serverTimestamp()
+            let buttonsHtml = '';
+            if(buttons) {
+                buttonsHtml = '<div style="margin-top: 10px;">';
+                if(Array.isArray(buttons)) {
+                    if(buttons[0] && Array.isArray(buttons[0])) {
+                        buttonsHtml += '<div class="button-grid">';
+                        buttons.forEach(row => {
+                            row.forEach(btn => {
+                                buttonsHtml += `<button class="menu-btn" onclick="${btn.action}">${btn.text}</button>`;
+                            });
+                        });
+                        buttonsHtml += '</div>';
+                    } else {
+                        buttons.forEach(btn => {
+                            buttonsHtml += `<button class="menu-btn" style="width:100%; margin-top:5px;" onclick="${btn.action}">${btn.text}</button>`;
                         });
                     }
                 }
-                
-                // Update withdrawal status
-                await updateDoc(requestRef, {
-                    status: newStatus,
-                    processedAt: serverTimestamp(),
-                    processedBy: currentAdmin.uid
-                });
-                
-                // Log the action
-                await logAdminAction(`${statusText}ed withdrawal ${requestId.substring(0, 8)}`);
-                
-                showAlert(`Withdrawal ${statusText}d successfully!`, 'success');
-                loadDashboardData();
-                
-            } catch (error) {
-                console.error('Error processing withdrawal:', error);
-                showAlert('Error processing withdrawal. Please try again.', 'error');
-            }
-        }
-
-        // Load referrals
-        async function loadReferrals() {
-            try {
-                const usersQuery = query(collection(db, "users"), where("referrals", ">", 0));
-                const usersSnap = await getDocs(usersQuery);
-                
-                let topReferrers = [];
-                let totalReferrals = 0;
-                
-                if (!usersSnap.empty) {
-                    usersSnap.forEach((doc) => {
-                        const user = doc.data();
-                        const referrals = user.referrals || 0;
-                        totalReferrals += referrals;
-                        
-                        if (referrals > 0) {
-                            topReferrers.push({
-                                name: user.name || 'Anonymous',
-                                userId: doc.id,
-                                referrals: referrals,
-                                earnings: (referrals * 10)
-                            });
-                        }
-                    });
-                }
-                
-                // Sort by referrals
-                topReferrers.sort((a, b) => b.referrals - a.referrals);
-                
-                // Display top referrers
-                const topReferrersDiv = document.getElementById('top-referrers');
-                if (topReferrers.length > 0) {
-                    let html = '';
-                    topReferrers.slice(0, 5).forEach((referrer, index) => {
-                        html += `
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--admin-border);">
-                                <div>
-                                    <strong>${index + 1}. ${referrer.name}</strong><br>
-                                    <small>${referrer.userId.substring(0, 8)}...</small>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div>${referrer.referrals} referrals</div>
-                                    <small>${referrer.earnings} tokens earned</small>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    topReferrersDiv.innerHTML = html;
-                } else {
-                    topReferrersDiv.innerHTML = 'No referral data available';
-                }
-                
-                // Display referral stats
-                const referralStatsDiv = document.getElementById('referral-stats');
-                referralStatsDiv.innerHTML = `
-                    <div style="margin-bottom: 10px;">
-                        <strong>Total Referrals:</strong> ${totalReferrals}
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <strong>Reward per Referral:</strong> 10 tokens
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <strong>Total Tokens Distributed:</strong> ${totalReferrals * 10} tokens
-                    </div>
-                `;
-                
-            } catch (error) {
-                console.error('Error loading referrals:', error);
-                showAlert('Error loading referral data', 'error');
-            }
-        }
-
-        // Load system settings - FIXED VERSION
-        async function loadSystemSettings() {
-            try {
-                const configRef = doc(db, "config", "main");
-                const configSnap = await getDoc(configRef);
-                
-                if (configSnap.exists()) {
-                    const config = configSnap.data();
-                    
-                    console.log("Loaded config:", config); // Debug log
-                    
-                    // Update form fields
-                    document.getElementById('token-rate').value = config.tokenRate || 0.001;
-                    document.getElementById('daily-airdrop').value = config.dailyAirdrop || 50;
-                    document.getElementById('ad-reward').value = config.adReward || 10;
-                    document.getElementById('task-reward').value = config.taskReward || 50;
-                    document.getElementById('referral-reward').value = config.referralReward || 10;
-                    document.getElementById('min-referrals').value = config.minReferrals || 20;
-                    document.getElementById('min-withdrawal').value = config.minWithdrawal || 1.0;
-                    document.getElementById('daily-ad-limit').value = config.dailyAdLimit || 100;
-                    
-                    // Handle payment methods - can be array or string
-                    let paymentMethods = config.paymentMethods;
-                    if (Array.isArray(paymentMethods)) {
-                        document.getElementById('payment-methods').value = paymentMethods.join(', ');
-                    } else if (typeof paymentMethods === 'string') {
-                        document.getElementById('payment-methods').value = paymentMethods;
-                    } else {
-                        document.getElementById('payment-methods').value = 'Binance, PayPal, Skrill, Perfect Money';
-                    }
-                    
-                    document.getElementById('maintenance-message').value = config.maintenanceMessage || 'System is running normally...';
-                    
-                    showAlert('Settings loaded successfully!', 'success');
-                } else {
-                    console.log("Config document doesn't exist, creating default...");
-                    // Create default config
-                    const defaultConfig = {
-                        tokenRate: 0.001,
-                        dailyAirdrop: 50,
-                        adReward: 10,
-                        taskReward: 50,
-                        referralReward: 10,
-                        minReferrals: 20,
-                        minWithdrawal: 1.0,
-                        dailyAdLimit: 100,
-                        paymentMethods: ["Binance", "PayPal", "Skrill", "Perfect Money"],
-                        maintenanceMessage: "System is running normally...",
-                        lastUpdated: serverTimestamp(),
-                        updatedBy: currentAdmin ? currentAdmin.uid : "system"
-                    };
-                    
-                    await setDoc(configRef, defaultConfig);
-                    console.log("Default config created");
-                    
-                    // Reload settings
-                    loadSystemSettings();
-                }
-                
-            } catch (error) {
-                console.error('Error loading system settings:', error);
-                showAlert('Error loading system settings: ' + error.message, 'error');
-            }
-        }
-
-        // Save system settings - COMPLETELY FIXED VERSION
-        async function saveSystemSettings() {
-            console.log("Saving system settings...");
-            
-            try {
-                const configRef = doc(db, "config", "main");
-                
-                // Get all values from the form
-                const tokenRate = parseFloat(document.getElementById('token-rate').value);
-                const dailyAirdrop = parseInt(document.getElementById('daily-airdrop').value);
-                const adReward = parseInt(document.getElementById('ad-reward').value);
-                const taskReward = parseInt(document.getElementById('task-reward').value);
-                const referralReward = parseInt(document.getElementById('referral-reward').value);
-                const minReferrals = parseInt(document.getElementById('min-referrals').value);
-                const minWithdrawal = parseFloat(document.getElementById('min-withdrawal').value);
-                const dailyAdLimit = parseInt(document.getElementById('daily-ad-limit').value);
-                const paymentMethodsText = document.getElementById('payment-methods').value;
-                const maintenanceMessage = document.getElementById('maintenance-message').value;
-                
-                console.log("Form values:", {
-                    tokenRate,
-                    dailyAirdrop,
-                    adReward,
-                    taskReward,
-                    referralReward,
-                    minReferrals,
-                    minWithdrawal,
-                    dailyAdLimit,
-                    paymentMethodsText,
-                    maintenanceMessage
-                });
-                
-                // Validate inputs
-                if (isNaN(tokenRate) || tokenRate < 0) {
-                    showAlert('Please enter a valid token conversion rate', 'error');
-                    return;
-                }
-                
-                if (isNaN(dailyAirdrop) || dailyAirdrop < 0) {
-                    showAlert('Please enter a valid daily airdrop amount', 'error');
-                    return;
-                }
-                
-                // Process payment methods
-                const paymentMethods = paymentMethodsText.split(',')
-                    .map(method => method.trim())
-                    .filter(method => method.length > 0);
-                
-                // Create update object
-                const updatedSettings = {
-                    tokenRate: tokenRate,
-                    dailyAirdrop: dailyAirdrop,
-                    adReward: adReward,
-                    taskReward: taskReward,
-                    referralReward: referralReward,
-                    minReferrals: minReferrals,
-                    minWithdrawal: minWithdrawal,
-                    dailyAdLimit: dailyAdLimit,
-                    paymentMethods: paymentMethods,
-                    maintenanceMessage: maintenanceMessage,
-                    lastUpdated: serverTimestamp(),
-                    updatedBy: currentAdmin.uid
-                };
-                
-                console.log("Saving to Firebase:", updatedSettings);
-                
-                // Save settings using setDoc with merge: true
-                await setDoc(configRef, updatedSettings, { merge: true });
-                
-                console.log("Settings saved successfully!");
-                
-                // Log the action
-                await logAdminAction('Updated system settings');
-                
-                showAlert('System settings saved successfully!', 'success');
-                
-                // Reload to confirm save
-                setTimeout(() => {
-                    loadSystemSettings();
-                }, 1000);
-                
-            } catch (error) {
-                console.error('Error saving system settings:', error);
-                showAlert('Error saving settings: ' + error.message, 'error');
-            }
-        }
-
-        // Load bot links
-        async function loadBotLinks() {
-            try {
-                const botLinksRef = doc(db, "config", "botLinks");
-                const botLinksSnap = await getDoc(botLinksRef);
-                
-                if (botLinksSnap.exists()) {
-                    const botLinks = botLinksSnap.data();
-                    
-                    // Update form fields
-                    document.getElementById('telegram-bot-link').value = botLinks.telegram || '';
-                    document.getElementById('youtube-channel-link').value = botLinks.youtube || '';
-                    document.getElementById('referral-link-base').value = botLinks.referralBase || '';
-                    document.getElementById('app-download-link').value = botLinks.appDownload || '';
-                }
-                
-            } catch (error) {
-                console.error('Error loading bot links:', error);
-            }
-        }
-
-        // Save bot links
-        async function saveBotLinks() {
-            try {
-                const botLinksRef = doc(db, "config", "botLinks");
-                
-                const botLinks = {
-                    telegram: document.getElementById('telegram-bot-link').value,
-                    youtube: document.getElementById('youtube-channel-link').value,
-                    referralBase: document.getElementById('referral-link-base').value,
-                    appDownload: document.getElementById('app-download-link').value,
-                    updatedAt: serverTimestamp(),
-                    updatedBy: currentAdmin.uid
-                };
-                
-                // Save bot links
-                await setDoc(botLinksRef, botLinks, { merge: true });
-                
-                // Log the action
-                await logAdminAction('Updated bot links');
-                
-                showAlert('Bot links saved successfully!', 'success');
-                
-            } catch (error) {
-                console.error('Error saving bot links:', error);
-                showAlert('Error saving bot links. Please try again.', 'error');
-            }
-        }
-
-        // Send notification to all users
-        async function sendNotificationToAllUsers() {
-            const title = document.getElementById('notification-title').value;
-            const message = document.getElementById('notification-message').value;
-            const type = document.getElementById('notification-type').value;
-            
-            if (!title || !message) {
-                showAlert('Please enter both title and message', 'error');
-                return;
+                buttonsHtml += '</div>';
             }
             
-            try {
-                const notificationsRef = collection(db, "notifications");
-                
-                await addDoc(notificationsRef, {
-                    title: title,
-                    message: message,
-                    type: type,
-                    createdAt: serverTimestamp(),
-                    sentBy: currentAdmin.uid,
-                    forAllUsers: true
-                });
-                
-                // Log the action
-                await logAdminAction(`Sent notification to all users: ${title}`);
-                
-                showAlert('Notification sent successfully to all users!', 'success');
-                
-                // Clear form
-                document.getElementById('notification-title').value = '';
-                document.getElementById('notification-message').value = '';
-                
-            } catch (error) {
-                console.error('Error sending notification:', error);
-                showAlert('Error sending notification. Please try again.', 'error');
-            }
-        }
-
-        // Load recent activity
-        async function loadRecentActivity() {
-            try {
-                const logsQuery = query(collection(db, "adminLogs"), where("adminId", "==", currentAdmin.uid));
-                const logsSnap = await getDocs(logsQuery);
-                
-                const activityDiv = document.getElementById('recent-activity');
-                
-                if (logsSnap.empty) {
-                    activityDiv.innerHTML = '<p>No recent activity</p>';
-                    return;
-                }
-                
-                let html = '';
-                const logs = [];
-                
-                logsSnap.forEach((doc) => {
-                    logs.push(doc.data());
-                });
-                
-                // Sort by timestamp (newest first)
-                logs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
-                
-                // Display logs
-                logs.slice(0, 5).forEach(log => {
-                    const time = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'N/A';
-                    html += `
-                        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--admin-border);">
-                            <div style="font-weight: bold;">${log.action}</div>
-                            <small style="color: #94A3B8;">${time}</small>
-                        </div>
-                    `;
-                });
-                
-                activityDiv.innerHTML = html;
-                
-            } catch (error) {
-                console.error('Error loading activity logs:', error);
-            }
-        }
-
-        // Load activity logs
-        async function loadActivityLogs() {
-            try {
-                const logsQuery = query(collection(db, "adminLogs"), where("adminId", "==", currentAdmin.uid));
-                const logsSnap = await getDocs(logsQuery);
-                
-                const logsDiv = document.getElementById('activity-logs');
-                
-                if (logsSnap.empty) {
-                    logsDiv.innerHTML = '<p>No activity logs found</p>';
-                    return;
-                }
-                
-                let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
-                const logs = [];
-                
-                logsSnap.forEach((doc) => {
-                    logs.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-                
-                // Sort by timestamp (newest first)
-                logs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
-                
-                // Display logs
-                logs.forEach(log => {
-                    const time = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'N/A';
-                    html += `
-                        <div style="
-                            padding: 15px;
-                            background-color: rgba(255,255,255,0.05);
-                            border-radius: 8px;
-                            border-left: 4px solid var(--primary-yellow);
-                        ">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <strong>${log.action}</strong>
-                                <small style="color: #94A3B8;">${time}</small>
-                            </div>
-                            <div style="color: #94A3B8; font-size: 14px;">
-                                Admin: ${log.adminEmail || currentAdmin.email}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                html += '</div>';
-                logsDiv.innerHTML = html;
-                
-            } catch (error) {
-                console.error('Error loading activity logs:', error);
-            }
-        }
-
-        // Filter logs
-        function filterLogs(type) {
-            alert(`Filtering by ${type} - This would filter the logs in a real implementation`);
-        }
-
-        // Search logs
-        function searchLogs() {
-            const term = document.getElementById('log-search').value;
-            alert(`Searching for: ${term}`);
-        }
-
-        // Log admin action
-        async function logAdminAction(action) {
-            try {
-                const logsRef = collection(db, "adminLogs");
-                await addDoc(logsRef, {
-                    action: action,
-                    adminId: currentAdmin.uid,
-                    adminEmail: currentAdmin.email,
-                    timestamp: serverTimestamp(),
-                    ip: 'N/A'
-                });
-            } catch (error) {
-                console.error('Error logging action:', error);
-            }
-        }
-
-        // Utility functions
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Show alert function
-        function showAlert(message, type = 'info') {
-            const alertContainer = document.getElementById('alert-container');
-            const alertId = 'alert-' + Date.now();
+            const time = new Date().toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
             
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert ${type}`;
-            alertDiv.id = alertId;
-            
-            alertDiv.innerHTML = `
-                <div class="alert-content">
-                    <div class="alert-message">${message}</div>
-                    <button class="alert-close" onclick="document.getElementById('${alertId}').remove()">&times;</button>
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <div style="white-space: pre-line;">${text}</div>
+                    ${buttonsHtml}
+                    <div class="message-time">${time}</div>
                 </div>
             `;
             
-            alertContainer.appendChild(alertDiv);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // ============================================
+        // ইউজার রেজিস্ট্রেশন
+        // ============================================
+        function registerUser() {
+            if(!currentUser) {
+                currentUser = {
+                    id: 'user_' + Date.now(),
+                    username: 'user_' + Math.floor(Math.random() * 1000),
+                    name: 'New User',
+                    coins: 0,
+                    totalEarn: 0,
+                    totalSpent: 0,
+                    referrals: 0,
+                    referredBy: null,
+                    joinDate: new Date().toISOString(),
+                    completedTasks: []
+                };
+                
+                Database.addUser(currentUser);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
             
-            // Auto remove after 5 seconds
+            updateStats();
+            
+            if(!currentUser.completedTasks.includes('channel_join')) {
+                addMessage(
+                    `🚀 Auto Follower Exchange Bot-এ স্বাগতম!\n\n` +
+                    `👤 অ্যাডমিন: ${CONFIG.supportUsername}\n` +
+                    `💰 আপনার 50% লাভ\n\n` +
+                    `⭐ শুরু করতে নিচের বাটনে ক্লিক করুন:`,
+                    false,
+                    [
+                        [{text: "📌 চ্যানেল জয়েন করুন", action: `window.open('${CONFIG.channelLink}')`}],
+                        [{text: "✅ জয়েন করেছি", action: "verifyChannelJoin()"}]
+                    ]
+                );
+            } else {
+                showMainMenu();
+            }
+        }
+
+        // ============================================
+        // চ্যানেল জয়েন ভেরিফাই
+        // ============================================
+        function verifyChannelJoin() {
+            currentUser.coins += CONFIG.channelJoinReward;
+            currentUser.totalEarn += CONFIG.channelJoinReward;
+            currentUser.completedTasks.push('channel_join');
+            
+            Database.users = Database.users.map(u => 
+                u.id == currentUser.id ? currentUser : u
+            );
+            Database.save();
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            addMessage(`✅ সফল!\n\n� আপনি ${CONFIG.channelJoinReward} কোইন পেয়েছেন!`, false);
+            updateStats();
+            showMainMenu();
+        }
+
+        // ============================================
+        // মেইন মেনু
+        // ============================================
+        function showMainMenu() {
+            addMessage(
+                `💰 আপনার ব্যালেন্স: ${currentUser.coins} কোইন\n\nনিচের অপশন থেকে বেছে নিন:`,
+                false,
+                [
+                    [
+                        {text: "💰 ব্যালেন্স", action: "showBalance()"},
+                        {text: "📋 টাস্ক", action: "showTasks()"}
+                    ],
+                    [
+                        {text: "🛒 সার্ভিস", action: "showServices()"},
+                        {text: "💳 পেমেন্ট", action: "showPayment()"}
+                    ],
+                    [
+                        {text: "👥 রেফারেল", action: "showReferral()"},
+                        {text: "🆘 সাপোর্ট", action: `window.open('https://t.me/${CONFIG.supportUsername.replace('@','')}')`}
+                    ]
+                ]
+            );
+        }
+
+        // ============================================
+        // ব্যালেন্স দেখান
+        // ============================================
+        function showBalance() {
+            addMessage(
+                `💰 আপনার প্রোফাইল\n\n` +
+                `👤 ইউজার আইডি: ${currentUser.id}\n` +
+                `💎 ব্যালেন্স: ${currentUser.coins} কোইন\n` +
+                `📊 মোট আয়: ${currentUser.totalEarn} কোইন\n` +
+                `📉 মোট খরচ: ${currentUser.totalSpent} কোইন\n` +
+                `👥 রেফারেল: ${currentUser.referrals} জন\n` +
+                `📅 জয়েন: ${new Date(currentUser.joinDate).toLocaleDateString('bn-BD')}`,
+                false,
+                [[{text: "« ব্যাক", action: "showMainMenu()"}]]
+            );
+        }
+
+        // ============================================
+        // রেফারেল
+        // ============================================
+        function showReferral() {
+            const referralLink = `https://t.me/AutoFollowerBot?start=${currentUser.id}`;
+            addMessage(
+                `👥 রেফারেল প্রোগ্রাম\n\n` +
+                `প্রতি রেফারেলের জন্য ${CONFIG.referralBonus} কোইন!\n\n` +
+                `🔗 আপনার লিংক:\n${referralLink}`,
+                false,
+                [
+                    [{text: "📋 কপি করুন", action: `copyToClipboard('${referralLink}')`}],
+                    [{text: "« ব্যাক", action: "showMainMenu()"}]
+                ]
+            );
+        }
+
+        // ============================================
+        // পেমেন্ট
+        // ============================================
+        function showPayment() {
+            addMessage(
+                `💰 কোইন কিনুন\n\n📱 Nagad: ${CONFIG.nagadNumber}`,
+                false,
+                [
+                    [
+                        {text: "50 = 25", action: "buyCoins(50)"},
+                        {text: "100 = 50", action: "buyCoins(100)"}
+                    ],
+                    [
+                        {text: "200 = 100", action: "buyCoins(200)"},
+                        {text: "500 = 250", action: "buyCoins(500)"}
+                    ],
+                    [
+                        {text: "1000 = 500", action: "buyCoins(1000)"}
+                    ],
+                    [{text: "« ব্যাক", action: "showMainMenu()"}]
+                ]
+            );
+        }
+
+        // ============================================
+        // কোইন কেনা
+        // ============================================
+        function buyCoins(amount) {
+            userState = `payment_${amount}`;
+            addMessage(
+                `🔐 পেমেন্ট ইনফরমেশন\n\n` +
+                `📱 Nagad: ${CONFIG.nagadNumber}\n` +
+                `💰 কোইন: ${amount}\n` +
+                `💵 টাকা: ${amount/2} টাকা\n\n` +
+                `✅ টাকা পাঠানোর পর ট্রানজেকশন আইডি দিন:`,
+                false,
+                [[{text: "« ব্যাক", action: "showPayment()"}]]
+            );
+        }
+
+        // ============================================
+        // সার্ভিস
+        // ============================================
+        function showServices() {
+            addMessage(
+                `🛒 সার্ভিস সমূহ\nপ্ল্যাটফর্ম সিলেক্ট করুন:`,
+                false,
+                [
+                    [
+                        {text: "📸 Instagram", action: "showInstagram()"},
+                        {text: "👍 Facebook", action: "showFacebook()"}
+                    ],
+                    [
+                        {text: "▶️ YouTube", action: "showYoutube()"},
+                        {text: "📢 Telegram", action: "showTelegram()"}
+                    ],
+                    [
+                        {text: "🎵 TikTok", action: "showTiktok()"}
+                    ],
+                    [{text: "« ব্যাক", action: "showMainMenu()"}]
+                ]
+            );
+        }
+
+        // ============================================
+        // Instagram
+        // ============================================
+        function showInstagram() {
+            addMessage(
+                `📸 Instagram সার্ভিস`,
+                false,
+                [
+                    [
+                        {text: `📸 ফলোয়ার (${CONFIG.prices.instagram_follower} কোইন)`, action: "selectService('instagram_follower')"},
+                        {text: `❤️ লাইক (${CONFIG.prices.instagram_like} কোইন)`, action: "selectService('instagram_like')"}
+                    ],
+                    [
+                        {text: `👁️ ভিউ (${CONFIG.prices.instagram_view} কোইন)`, action: "selectService('instagram_view')"}
+                    ],
+                    [{text: "« ব্যাক", action: "showServices()"}]
+                ]
+            );
+        }
+
+        // ============================================
+        // Facebook
+        // ============================================
+        function showFacebook() {
+            addMessage(
+                `👍 Facebook সার্ভিস`,
+                false,
+                [
+                    [
+                        {text: `👍 ফলোয়ার (${CONFIG.prices.facebook_follower} কোইন)`, action: "selectService('facebook_follower')"},
+                        {text: `❤️ লাইক (${CONFIG.prices.facebook_like} কোইন)`, action: "selectService('facebook_like')"}
+                    ],
+                    [
+                        {text: `👁️ ভিউ (${CONFIG.prices.facebook_view} কোইন)`, action: "selectService('facebook_view')"}
+                    ],
+                    [{text: "« ব্যাক", action: "showServices()"}]
+                ]
+            );
+        }
+
+        // ============================================
+        // YouTube
+        // ============================================
+        function showYoutube() {
+            addMessage(
+                `▶️ YouTube সার্ভিস`,
+                false,
+                [
+                    [
+                        {text: `▶️ সাবস্ক্রাইবার (${CONFIG.prices.youtube_subscriber} কোইন)`, action: "selectService('youtube_subscriber')"},
+                        {text: `👁️ ভিউ (${CONFIG.prices.youtube_view} কোইন)`, action: "selectService('youtube_view')"}
+                    ],
+                    [
+                        {text: `👍 লাইক (${CONFIG.prices.youtube_like} কোইন)`, action: "selectService('youtube_like')"}
+                    ],
+                    [{text: "« ব্যাক", action: "showServices()"}]
+                ]
+            );
+        }
+
+        // ============================================
+        // Telegram
+        // ============================================
+        function showTelegram() {
+            addMessage(
+                `📢 Telegram সার্ভিস`,
+                false,
+                [
+                    [
+                        {text: `📢 মেম্বার (${CONFIG.prices.telegram_member} কোইন)`, action: "selectService('telegram_member')"},
+                        {text: `👁️ ভিউ (${CONFIG.prices.telegram_view} কোইন)`, action: "selectService('telegram_view')"}
+                    ],
+                    [
+                        {text: `❤️ রিঅ্যাকশন (${CONFIG.prices.telegram_reaction} কোইন)`, action: "selectService('telegram_reaction')"}
+                    ],
+                    [{text: "« ব্যাক", action: "showServices()"}]
+                ]
+            );
+        }
+
+        // ============================================
+        // TikTok
+        // ============================================
+        function showTiktok() {
+            addMessage(
+                `🎵 TikTok সার্ভিস`,
+                false,
+                [
+                    [
+                        {text: `🎵 ফলোয়ার (${CONFIG.prices.tiktok_follower} কোইন)`, action: "selectService('tiktok_follower')"},
+                        {text: `❤️ লাইক (${CONFIG.prices.tiktok_like} কোইন)`, action: "selectService('tiktok_like')"}
+                    ],
+                    [
+                        {text: `👁️ ভিউ (${CONFIG.prices.tiktok_view} কোইন)`, action: "selectService('tiktok_view')"}
+                    ],
+                    [{text: "« ব্যাক", action: "showServices()"}]
+                ]
+            );
+        }
+
+        // ============================================
+        // সার্ভিস সিলেক্ট
+        // ============================================
+        function selectService(service) {
+            selectedService = service;
+            userState = 'awaiting_quantity';
+            addMessage(
+                `📝 পরিমাণ লিখুন (১০-১০০০০):`,
+                false,
+                [[{text: "« ব্যাক", action: "showServices()"}]]
+            );
+        }
+
+        // ============================================
+        // টাস্ক দেখান
+        // ============================================
+        function showTasks() {
+            const tasks = [
+                {id: 1, name: "টেক বাংলা", channel: "@techbangla", reward: 2},
+                {id: 2, name: "গেমিং জোন", channel: "@gamingzone", reward: 2}
+            ];
+            
+            const buttons = [];
+            tasks.forEach(task => {
+                if(!currentUser.completedTasks.includes(`task_${task.id}`)) {
+                    buttons.push([{text: `${task.name} +${task.reward}`, action: `doTask(${task.id})`}]);
+                }
+            });
+            buttons.push([{text: "« ব্যাক", action: "showMainMenu()"}]);
+            
+            addMessage(`📋 টাস্ক লিস্ট\n\nচ্যানেল ফলো করে কোইন আয় করুন:`, false, buttons);
+        }
+
+        // ============================================
+        // টাস্ক করা
+        // ============================================
+        function doTask(taskId) {
+            const tasks = [
+                {id: 1, name: "টেক বাংলা", reward: 2},
+                {id: 2, name: "গেমিং জোন", reward: 2}
+            ];
+            const task = tasks.find(t => t.id == taskId);
+            
+            if(!currentUser.completedTasks.includes(`task_${taskId}`)) {
+                currentUser.coins += task.reward;
+                currentUser.totalEarn += task.reward;
+                currentUser.completedTasks.push(`task_${taskId}`);
+                
+                Database.users = Database.users.map(u => 
+                    u.id == currentUser.id ? currentUser : u
+                );
+                Database.save();
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                addMessage(`✅ টাস্ক কমপ্লিট!\n🎉 আপনি ${task.reward} কোইন পেয়েছেন!\n💰 নতুন ব্যালেন্স: ${currentUser.coins}`, false);
+                updateStats();
+            }
+            showTasks();
+        }
+
+        // ============================================
+        // মেসেজ পাঠানো
+        // ============================================
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if(!text) return;
+            
+            addMessage(text, true);
+            input.value = '';
+            
             setTimeout(() => {
-                if (document.getElementById(alertId)) {
-                    document.getElementById(alertId).remove();
+                if(userState && userState.startsWith('payment_')) {
+                    let amount = parseInt(userState.split('_')[1]);
+                    
+                    let payment = {
+                        id: 'pay_' + Date.now(),
+                        userId: currentUser.id,
+                        username: currentUser.username,
+                        amount: amount,
+                        price: amount/2,
+                        trxId: text,
+                        status: 'pending',
+                        date: new Date().toISOString()
+                    };
+                    
+                    Database.addPayment(payment);
+                    
+                    addMessage(`✅ পেমেন্ট সাবমিট হয়েছে!\n🆔 পেমেন্ট আইডি: ${payment.id}\n\n⏳ অ্যাডমিন ভেরিফাই করবে।`, false);
+                    userState = null;
+                    updateStats();
+                    
+                } else if(userState == 'awaiting_quantity') {
+                    let quantity = parseInt(text);
+                    if(quantity >= 10 && quantity <= 10000) {
+                        selectedQuantity = quantity;
+                        userState = 'awaiting_link';
+                        addMessage(`🔗 আপনার লিংক দিন:`, false);
+                    } else {
+                        addMessage(`❌ ১০ থেকে ১০০০০ এর মধ্যে সংখ্যা দিন!`, false);
+                    }
+                    
+                } else if(userState == 'awaiting_link') {
+                    if(text.startsWith('http')) {
+                        let price = CONFIG.prices[selectedService] || 3;
+                        let totalCost = selectedQuantity * price;
+                        
+                        if(currentUser.coins >= totalCost) {
+                            currentUser.coins -= totalCost;
+                            currentUser.totalSpent += totalCost;
+                            
+                            let order = {
+                                id: 'ord_' + Date.now(),
+                                userId: currentUser.id,
+                                username: currentUser.username,
+                                service: selectedService,
+                                quantity: selectedQuantity,
+                                link: text,
+                                cost: totalCost,
+                                profit: totalCost * 0.5,
+                                status: 'pending',
+                                date: new Date().toISOString()
+                            };
+                            
+                            Database.addOrder(order);
+                            
+                            Database.users = Database.users.map(u => 
+                                u.id == currentUser.id ? currentUser : u
+                            );
+                            Database.save();
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                            
+                            addMessage(
+                                `✅ অর্ডার কনফার্ম!\n\n` +
+                                `🆔 অর্ডার আইডি: ${order.id}\n` +
+                                `📦 সার্ভিস: ${selectedService}\n` +
+                                `📊 পরিমাণ: ${selectedQuantity}\n` +
+                                `💰 খরচ: ${totalCost} কোইন\n` +
+                                `⏳ ডেলিভারি প্রসেসিং...`,
+                                false
+                            );
+                            
+                            userState = null;
+                            selectedService = null;
+                            selectedQuantity = null;
+                            updateStats();
+                        } else {
+                            addMessage(`❌ পর্যাপ্ত কোইন নেই!\nপেমেন্ট করতে /payment দিন`, false);
+                        }
+                    } else {
+                        addMessage(`❌ সঠিক লিংক দিন (http দিয়ে শুরু হতে হবে)!`, false);
+                    }
+                } else {
+                    addMessage(`⚠️ বুঝতে পারিনি। মেনু থেকে সিলেক্ট করুন।`, false);
                 }
-            }, 5000);
+            }, 500);
         }
 
-        // Show confirm dialog
-        function showConfirm(message) {
-            return new Promise((resolve) => {
-                const confirmModal = document.getElementById('confirm-modal');
-                const confirmMessage = document.getElementById('confirm-message');
-                const confirmOk = document.getElementById('confirm-ok');
-                const confirmCancel = document.getElementById('confirm-cancel');
-                
-                confirmMessage.textContent = message;
-                confirmModal.style.display = 'flex';
-                
-                const okHandler = () => {
-                    confirmModal.style.display = 'none';
-                    resolve(true);
-                    confirmOk.removeEventListener('click', okHandler);
-                    confirmCancel.removeEventListener('click', cancelHandler);
-                };
-                
-                const cancelHandler = () => {
-                    confirmModal.style.display = 'none';
-                    resolve(false);
-                    confirmOk.removeEventListener('click', okHandler);
-                    confirmCancel.removeEventListener('click', cancelHandler);
-                };
-                
-                confirmOk.addEventListener('click', okHandler);
-                confirmCancel.addEventListener('click', cancelHandler);
-            });
+        // ============================================
+        // স্ট্যাটস আপডেট
+        // ============================================
+        function updateStats() {
+            document.getElementById('totalUsers').innerText = Database.users.length;
+            document.getElementById('totalOrders').innerText = Database.orders.length;
+            
+            let totalPayments = Database.payments
+                .filter(p => p.status == 'completed')
+                .reduce((sum, p) => sum + p.price, 0);
+            document.getElementById('totalPayments').innerText = totalPayments + ' টাকা';
+            
+            let totalProfit = Database.orders
+                .filter(o => o.status == 'completed')
+                .reduce((sum, o) => sum + o.profit, 0);
+            document.getElementById('totalProfit').innerText = totalProfit + ' টাকা';
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modals = document.querySelectorAll('.modal, .confirm-modal');
-            modals.forEach(modal => {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
+        // ============================================
+        // কপি টু ক্লিপবোর্ড
+        // ============================================
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            addMessage(`✅ কপি হয়েছে!`, false);
+        }
+
+        // ============================================
+        // অ্যাডমিন লগইন
+        // ============================================
+        function openAdminLogin() {
+            document.getElementById('adminLoginModal').classList.add('active');
+        }
+
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            if(username === CONFIG.adminUsername && password === CONFIG.adminPassword) {
+                document.getElementById('adminLoginModal').classList.remove('active');
+                document.getElementById('adminPanel').style.display = 'block';
+                loadAdminPanel('users');
+            } else {
+                alert('❌ ভুল ইউজারনেম বা পাসওয়ার্ড!');
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        // ============================================
+        // অ্যাডমিন প্যানেল
+        // ============================================
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            loadAdminPanel(tab);
+        }
+
+        function loadAdminPanel(tab) {
+            const content = document.getElementById('adminContent');
+            
+            if(tab === 'users') {
+                let html = `
+                    <table class="admin-table">
+                        <tr>
+                            <th>ইউজার আইডি</th>
+                            <th>ইউজারনেম</th>
+                            <th>ব্যালেন্স</th>
+                            <th>রেফারেল</th>
+                            <th>জয়েন</th>
+                        </tr>
+                `;
+                
+                Database.users.forEach(user => {
+                    html += `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.username}</td>
+                            <td>${user.coins} কোইন</td>
+                            <td>${user.referrals}</td>
+                            <td>${new Date(user.joinDate).toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</table>';
+                content.innerHTML = html;
+                
+            } else if(tab === 'orders') {
+                let html = `
+                    <table class="admin-table">
+                        <tr>
+                            <th>অর্ডার আইডি</th>
+                            <th>ইউজার</th>
+                            <th>সার্ভিস</th>
+                            <th>পরিমাণ</th>
+                            <th>খরচ</th>
+                            <th>লাভ (50%)</th>
+                            <th>স্ট্যাটাস</th>
+                            <th>অ্যাকশন</th>
+                        </tr>
+                `;
+                
+                Database.orders.forEach(order => {
+                    html += `
+                        <tr>
+                            <td>${order.id}</td>
+                            <td>${order.username}</td>
+                            <td>${order.service}</td>
+                            <td>${order.quantity}</td>
+                            <td>${order.cost} কোইন</td>
+                            <td>${order.profit} টাকা</td>
+                            <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                            <td>
+                                ${order.status === 'pending' ? 
+                                    `<button class="action-btn" onclick="completeOrder('${order.id}')">✅ সম্পন্ন</button>` : 
+                                    '✅ done'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</table>';
+                content.innerHTML = html;
+                
+            } else if(tab === 'payments') {
+                let html = `
+                    <table class="admin-table">
+                        <tr>
+                            <th>পেমেন্ট আইডি</th>
+                            <th>ইউজার</th>
+                            <th>কোইন</th>
+                            <th>টাকা</th>
+                            <th>ট্রানজেকশন</th>
+                            <th>স্ট্যাটাস</th>
+                            <th>অ্যাকশน</th>
+                        </tr>
+                `;
+                
+                Database.payments.forEach(payment => {
+                    html += `
+                        <tr>
+                            <td>${payment.id}</td>
+                            <td>${payment.username}</td>
+                            <td>${payment.amount}</td>
+                            <td>${payment.price} টাকা</td>
+                            <td>${payment.trxId}</td>
+                            <td><span class="status-badge status-${payment.status}">${payment.status}</span></td>
+                            <td>
+                                ${payment.status === 'pending' ? 
+                                    `<button class="action-btn" onclick="completePayment('${payment.id}')">💰 অ্যাপ্রুভ</button>` : 
+                                    '✅ done'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</table>';
+                content.innerHTML = html;
+                
+            } else if(tab === 'settings') {
+                content.innerHTML = `
+                    <div style="padding: 20px;">
+                        <h3>⚙️ সেটিংস</h3>
+                        <p>SMMGen API Key: ${CONFIG.smmgenApiKey}</p>
+                        <p>SMMGen User ID: ${CONFIG.smmgenUserId}</p>
+                        <p>Nagad Number: ${CONFIG.nagadNumber}</p>
+                        <p>চ্যানেল: ${CONFIG.channelLink}</p>
+                        <p>সাপোর্ট: ${CONFIG.supportUsername}</p>
+                        <p>আপনার লাভ: 50%</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================
+        // অ্যাডমিন অ্যাকশন
+        // ============================================
+        function completeOrder(orderId) {
+            Database.updateOrder(orderId, {status: 'completed'});
+            loadAdminPanel('orders');
+        }
+
+        function completePayment(paymentId) {
+            let payment = Database.payments.find(p => p.id == paymentId);
+            if(payment) {
+                Database.updatePayment(paymentId, {status: 'completed'});
+                
+                let user = Database.users.find(u => u.id == payment.userId);
+                if(user) {
+                    user.coins += payment.amount;
+                    user.totalEarn += payment.amount;
+                    Database.save();
                 }
-            });
+            }
+            loadAdminPanel('payments');
+            updateStats();
+        }
+
+        // ============================================
+        // ইনিশিয়ালাইজ
+        // ============================================
+        window.onload = function() {
+            registerUser();
+            updateStats();
+            setInterval(updateStats, 5000);
         };
-
-        // Make functions available globally
-        window.showSection = showSection;
-        window.refreshAllData = refreshAllData;
-        window.searchUsers = searchUsers;
-        window.clearUserSearch = clearUserSearch;
-        window.prevPage = prevPage;
-        window.nextPage = nextPage;
-        window.viewUserDetails = viewUserDetails;
-        window.editUser = editUser;
-        window.saveUserEdits = saveUserEdits;
-        window.toggleBlockUser = toggleBlockUser;
-        window.handleWithdrawal = handleWithdrawal;
-        window.filterLogs = filterLogs;
-        window.searchLogs = searchLogs;
-        window.sendNotificationToAllUsers = sendNotificationToAllUsers;
-        window.saveBotLinks = saveBotLinks;
-        window.openModal = openModal;
-        window.closeModal = closeModal;
-        window.showAlert = showAlert;
-        window.showConfirm = showConfirm;
-        
     </script>
 </body>
 </html>
